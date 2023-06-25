@@ -1,6 +1,17 @@
 package main
 
-func main() {
+import (
+	"fmt"
+	"log"
+	"net/http"
+)
 
-	print("hello")
+func main() {
+	fmt.Println("server started")
+
+	err := http.ListenAndServe(":3000", nil)
+
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
 }
