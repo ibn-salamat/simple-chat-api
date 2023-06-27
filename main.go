@@ -15,14 +15,16 @@ func socketHandler(ws *websocket.Conn) {
 
 	fmt.Println("user")
 
-	var reply string
+	for {
+		var reply string
 
-	if err = websocket.Message.Receive(ws, &reply); err != nil {
-		fmt.Println("Can't receive")
+		if err = websocket.Message.Receive(ws, &reply); err != nil {
+			fmt.Println("Can't receive")
+		}
+
+		msg := "Received:  " + reply
+		fmt.Println("Sending to client: " + msg)
 	}
-
-	msg := "Received:  " + reply
-	fmt.Println("Sending to client: " + msg)
 
 }
 
