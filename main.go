@@ -8,30 +8,30 @@ import (
 	"golang.org/x/net/websocket"
 )
 
+const PORT = ":3000"
+
 func socketHandler(ws *websocket.Conn) {
 	var err error
 
 	fmt.Println("user")
 
-	for {
-		var reply string
+	var reply string
 
-		if err = websocket.Message.Receive(ws, &reply); err != nil {
-			fmt.Println("Can't receive")
-			break
-		}
-
-		msg := "Received:  " + reply
-		fmt.Println("Sending to client: " + msg)
+	if err = websocket.Message.Receive(ws, &reply); err != nil {
+		fmt.Println("Can't receive")
 	}
+
+	msg := "Received:  " + reply
+	fmt.Println("Sending to client: " + msg)
+
 }
 
 func main() {
-	http.Handle("/", websocket.Handler(socketHandler))
+	http.Handle("/ws", websocket.Handler(socketHandler))
 
-	fmt.Println("Server started")
+	fmt.Printf("Server started on PORT %s", PORT)
 
-	if err := http.ListenAndServe(":3000", nil); err != nil {
+	if err := http.ListenAndServe(PORT, nil); err != nil {
 		log.Fatal("ListenAndServe:", err)
 	}
 }
