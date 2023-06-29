@@ -1,5 +1,6 @@
 # Chat
 
+run  "go run ."                                    
 
 ## Todo
 alarms, stickers, files

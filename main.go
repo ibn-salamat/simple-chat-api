@@ -1,11 +1,14 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"ibn-salamat/simple-chat-api/handlers/auth"
 	"ibn-salamat/simple-chat-api/handlers/socket"
 	"log"
 	"net/http"
+
+	_ "github.com/lib/pq"
 
 	"golang.org/x/net/websocket"
 )
@@ -13,6 +16,18 @@ import (
 const PORT = ":3000"
 
 func main() {
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		"localhost", 5432, "admin", "postgres", "simple-chat")
+
+	db, err := sql.Open("postgres", psqlInfo)
+
+	if err != nil {
+		log.Fatal("Unable to connect to Database:", err)
+	}
+
+	defer db.Close()
+
 	http.Handle("/ws", websocket.Handler(socket.SocketHandler))
 	http.Handle("/auth/sign-up", http.HandlerFunc(auth.SignUpHandler))
 	http.Handle("/auth/sign-in", http.HandlerFunc(auth.SignInHandler))
