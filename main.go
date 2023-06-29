@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"ibn-salamat/simple-chat-api/database"
 	"ibn-salamat/simple-chat-api/handlers/auth"
 	"ibn-salamat/simple-chat-api/handlers/socket"
 	"log"
@@ -25,6 +26,12 @@ func main() {
 	if err != nil {
 		log.Fatal("Unable to connect to Database:", err)
 	}
+
+	if err = db.Ping(); err != nil {
+		log.Fatal("Unable to connect to Database:", err)
+	}
+
+	database.DB = db
 
 	defer db.Close()
 
