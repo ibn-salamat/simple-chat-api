@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"ibn-salamat/simple-chat-api/handlers/auth"
 	"log"
 	"net/http"
 
@@ -30,6 +31,7 @@ func socketHandler(ws *websocket.Conn) {
 
 func main() {
 	http.Handle("/ws", websocket.Handler(socketHandler))
+	http.Handle("/auth", http.HandlerFunc(auth.AuthHandler))
 
 	fmt.Printf("Server started on PORT %s", PORT)
 
