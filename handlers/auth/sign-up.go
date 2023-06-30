@@ -1,43 +1,78 @@
 package auth
 
 import (
+	"database/sql"
 	"encoding/json"
+	"fmt"
 	"ibn-salamat/simple-chat-api/database"
 	"log"
 	"net/http"
+	"strings"
 )
 
-var (
-	id       int
-	username string
-)
+type NewUser struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
 
 type response map[string]string
 
 func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	rows, err := database.DB.Query("SELECT * from users")
+	decoder := json.NewDecoder(r.Body)
 
-	for rows.Next() {
-		err := rows.Scan(&id, &username)
-		if err != nil {
-			log.Fatal(err)
+	var newUser NewUser
+
+	err := decoder.Decode(&newUser)
+
+	if err != nil || strings.Trim(newUser.Email, " ") == "" || strings.Trim(newUser.Password, " ") == "" {
+		w.WriteHeader(400)
+
+		jsonResp := response{
+			"errorMessage": "Email and password are required!",
 		}
-		log.Println(id, username)
+
+		jsonBody, _ := json.Marshal(jsonResp)
+
+		w.Write(jsonBody)
+
+		return
 	}
 
-	body := response{
-		"message": "signUp",
+	newUser.Email = strings.Trim(newUser.Email, " ")
+
+	row := database.DB.QueryRow("SELECT email FROM users WHERE email = $1", newUser.Email).Scan(&newUser.Email)
+
+	if row != sql.ErrNoRows {
+		w.WriteHeader(400)
+
+		jsonResp := response{
+			"errorMessage": "Email already exists.",
+		}
+
+		jsonBody, _ := json.Marshal(jsonResp)
+
+		w.Write(jsonBody)
+
+		return
 	}
 
-	jsonBody, err := json.Marshal(body)
+	fmt.Println(newUser.Email)
 
-	if err != nil {
-		log.Fatalf("Error happened in JSON marshal. Err: %s", err)
-	}
+	// if err != nil {
+	// 	fmt.Println(2)
+	// }
 
-	w.Write(jsonBody)
+	// fmt.Println(rows.Scan(&email))
+
+	// jsonBody, err := json.Marshal(body)
+
+	// if err != nil {
+	// 	log.Fatalf("Error happened in JSON marshal. Err: %s", err)
+	// }
+
+	// w.Write(jsonBody)
 }
 
 func SignInHandler(w http.ResponseWriter, r *http.Request) {

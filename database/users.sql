@@ -1,4 +1,4 @@
 CREATE TABLE users (
-	id serial PRIMARY KEY,
-	username VARCHAR ( 50 ) UNIQUE NOT NULL 
+    id SERIAL UNIQUE,
+    email character varying(30) NOT NULL UNIQUE
 );
