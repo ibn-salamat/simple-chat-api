@@ -48,7 +48,7 @@ func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 
 	confirmationCode := helpers.CreateConfirmationCode()
 
-	_, err = database.DB.Query(`
+	_, err = database.DB.Exec(`
 	INSERT INTO users_confirmation 
 	(email, confirmation_code) 
 	VALUES ($1, $2)
@@ -92,7 +92,7 @@ func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		// clear db
-		database.DB.QueryRow("DELETE FROM users_confirmation WHERE email = $1", newUser.Email).Scan(&newUser.Email)
+		database.DB.Exec("DELETE FROM users_confirmation WHERE email = $1", newUser.Email)
 
 		jsonBody, _ := json.Marshal(response{
 			"errorMessage": err.Error(),
@@ -114,6 +114,6 @@ func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 	go func() {
 		time.Sleep(30 * time.Second)
 
-		database.DB.QueryRow("DELETE FROM users_confirmation WHERE email = $1", newUser.Email)
+		database.DB.Exec("DELETE FROM users_confirmation WHERE email = $1", newUser.Email)
 	}()
 }
