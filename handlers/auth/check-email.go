@@ -26,32 +26,27 @@ func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := decoder.Decode(&newUser)
 	if err != nil || newUser.Email == "" {
-		w.WriteHeader(http.StatusBadRequest)
 
 		jsonResp := response{
 			"errorMessage": "Email is required!",
 		}
-
 		jsonBody, _ := json.Marshal(jsonResp)
 
 		w.Write(jsonBody)
-
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	row := database.DB.QueryRow("SELECT email FROM users WHERE email = $1", newUser.Email).Scan(&newUser.Email)
 
 	if row != sql.ErrNoRows {
-		w.WriteHeader(http.StatusBadRequest)
-
 		jsonResp := response{
 			"errorMessage": "Email already exists.",
 		}
-
 		jsonBody, _ := json.Marshal(jsonResp)
 
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write(jsonBody)
-
 		return
 	}
 
@@ -64,7 +59,6 @@ func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 	`, newUser.Email, confirmationCode)
 
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
 		errorMessage := err.Error()
 
 		// TODO
@@ -75,11 +69,10 @@ func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 		jsonResp := response{
 			"errorMessage": errorMessage,
 		}
-
 		jsonBody, _ := json.Marshal(jsonResp)
 
 		w.Write(jsonBody)
-
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -103,29 +96,25 @@ func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 	)
 
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		// clear db
+		database.DB.QueryRow("DELETE FROM users_confirmation WHERE email = $1", newUser.Email).Scan(&newUser.Email)
 
 		jsonResp := response{
 			"errorMessage": err.Error(),
 		}
-
-		// clear db
-		database.DB.QueryRow("DELETE FROM users_confirmation WHERE email = $1", newUser.Email).Scan(&newUser.Email)
-
 		jsonBody, _ := json.Marshal(jsonResp)
 
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write(jsonBody)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-
 	jsonResp := response{
 		"message": fmt.Sprintf("We have sent code to your email: %s", newUser.Email),
 	}
-
 	jsonBody, _ := json.Marshal(jsonResp)
 
+	w.WriteHeader(http.StatusOK)
 	w.Write(jsonBody)
 
 	// delete temporary user data
