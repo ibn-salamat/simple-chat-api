@@ -19,9 +19,8 @@ type NewUser struct {
 func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	decoder := json.NewDecoder(r.Body)
-
 	var newUser NewUser
+	decoder := json.NewDecoder(r.Body)
 	newUser.Email = strings.Trim(newUser.Email, " ")
 
 	err := decoder.Decode(&newUser)
