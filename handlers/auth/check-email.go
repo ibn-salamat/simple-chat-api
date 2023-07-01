@@ -9,13 +9,14 @@ import (
 	"net/http"
 	"net/smtp"
 	"strings"
+	"time"
 )
 
 type NewUser struct {
 	Email string `json:"email"`
 }
 
-func SignUpHandler(w http.ResponseWriter, r *http.Request) {
+func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	decoder := json.NewDecoder(r.Body)
@@ -65,11 +66,16 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	`, newUser.Email, confirmationCode)
 
 	if err != nil {
-
 		w.WriteHeader(http.StatusBadRequest)
+		errorMessage := err.Error()
+
+		// TODO
+		if strings.Contains(errorMessage, "pq: duplicate key value violates unique constraint \"users_confirmation_email_key\"") {
+			errorMessage = "We have already sent code confirmation. Please check your email"
+		}
 
 		jsonResp := response{
-			"errorMessage": err.Error(),
+			"errorMessage": errorMessage,
 		}
 
 		jsonBody, _ := json.Marshal(jsonResp)
@@ -123,4 +129,22 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	jsonBody, _ := json.Marshal(jsonResp)
 
 	w.Write(jsonBody)
+
+	// test confirmation
+	go func() {
+		time.Sleep(5 * time.Second)
+
+		_, err = database.DB.Query("UPDATE users_confirmation confirmed SET confirmed = true WHERE email = $1", newUser.Email)
+
+		if err != nil {
+			fmt.Println(err)
+		}
+	}()
+
+	// delete unconfirmed user
+	go func() {
+		time.Sleep(10 * time.Second)
+
+		database.DB.QueryRow("DELETE FROM users_confirmation WHERE email = $1 AND confirmed = FALSE", newUser.Email)
+	}()
 }
