@@ -36,8 +36,8 @@ func main() {
 	defer db.Close()
 
 	http.Handle("/ws", websocket.Handler(socket.SocketHandler))
-	http.Handle("/auth/sign-up", http.HandlerFunc(auth.SignUpHandler))
-	http.Handle("/auth/sign-in", http.HandlerFunc(auth.SignInHandler))
+	http.Handle("/api/auth/sign-up", http.HandlerFunc(auth.SignUpHandler))
+	http.Handle("/api/auth/sign-in", http.HandlerFunc(auth.SignInHandler))
 
 	fmt.Printf("Server started on PORT %s \n", PORT)
 
