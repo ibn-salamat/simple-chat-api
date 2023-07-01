@@ -24,7 +24,6 @@ func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 	var newUser NewUser
 
 	err := decoder.Decode(&newUser)
-
 	if err != nil || strings.Trim(newUser.Email, " ") == "" {
 		w.WriteHeader(http.StatusBadRequest)
 
@@ -130,21 +129,10 @@ func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Write(jsonBody)
 
-	// test confirmation
+	// delete temporary user data
 	go func() {
-		time.Sleep(5 * time.Second)
+		time.Sleep(30 * time.Second)
 
-		_, err = database.DB.Query("UPDATE users_confirmation confirmed SET confirmed = true WHERE email = $1", newUser.Email)
-
-		if err != nil {
-			fmt.Println(err)
-		}
-	}()
-
-	// delete unconfirmed user
-	go func() {
-		time.Sleep(10 * time.Second)
-
-		database.DB.QueryRow("DELETE FROM users_confirmation WHERE email = $1 AND confirmed = FALSE", newUser.Email)
+		database.DB.QueryRow("DELETE FROM users_confirmation WHERE email = $1", newUser.Email)
 	}()
 }
