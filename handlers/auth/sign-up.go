@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"ibn-salamat/simple-chat-api/database"
-	"log"
+	"ibn-salamat/simple-chat-api/helpers"
 	"net/http"
+	"net/smtp"
 	"strings"
 )
 
@@ -14,8 +15,6 @@ type NewUser struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
-
-type response map[string]string
 
 func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -27,7 +26,7 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&newUser)
 
 	if err != nil || strings.Trim(newUser.Email, " ") == "" || strings.Trim(newUser.Password, " ") == "" {
-		w.WriteHeader(400)
+		w.WriteHeader(http.StatusBadRequest)
 
 		jsonResp := response{
 			"errorMessage": "Email and password are required!",
@@ -45,7 +44,7 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	row := database.DB.QueryRow("SELECT email FROM users WHERE email = $1", newUser.Email).Scan(&newUser.Email)
 
 	if row != sql.ErrNoRows {
-		w.WriteHeader(400)
+		w.WriteHeader(http.StatusBadRequest)
 
 		jsonResp := response{
 			"errorMessage": "Email already exists.",
@@ -58,35 +57,47 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(newUser.Email)
+	message := []byte("Subject: ConfirmationPlease dont share this information")
+	addr := "smtp.gmail.com: 587"
+	auth := smtp.PlainAuth(
+		"",
+		"n.salamatoff@gmail.com",
+		helpers.GetEnvValue("GOOGLE_GMAIL_KEY"),
+		"smtp.gmail.com",
+	)
 
-	// if err != nil {
-	// 	fmt.Println(2)
-	// }
+	from := "admin@simple-chat.com"
 
-	// fmt.Println(rows.Scan(&email))
+	to := []string{newUser.Email}
 
-	// jsonBody, err := json.Marshal(body)
-
-	// if err != nil {
-	// 	log.Fatalf("Error happened in JSON marshal. Err: %s", err)
-	// }
-
-	// w.Write(jsonBody)
-}
-
-func SignInHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	body := response{
-		"message": "signin",
-	}
-
-	jsonBody, err := json.Marshal(body)
+	err = smtp.SendMail(
+		addr,
+		auth,
+		from,
+		to,
+		message,
+	)
 
 	if err != nil {
-		log.Fatalf("Error happened in JSON marshal. Err: %s", err)
+		w.WriteHeader(http.StatusBadRequest)
+
+		jsonResp := response{
+			"errorMessage": err.Error(),
+		}
+
+		jsonBody, _ := json.Marshal(jsonResp)
+
+		w.Write(jsonBody)
+		return
 	}
+
+	w.WriteHeader(http.StatusOK)
+
+	jsonResp := response{
+		"message": fmt.Sprintf("We have sent code to your email: %s", newUser.Email),
+	}
+
+	jsonBody, _ := json.Marshal(jsonResp)
 
 	w.Write(jsonBody)
 }
