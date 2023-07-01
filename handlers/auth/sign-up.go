@@ -79,7 +79,7 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	message := []byte(fmt.Sprintf("Subject: Confirmation. Please dont share this information \n Your code: %s", confirmationCode))
+	message := []byte(fmt.Sprintf("Subject: Simple-chat Confirmation. \r\n\r\n\n Your code: %s", confirmationCode))
 	addr := "smtp.gmail.com: 587"
 	auth := smtp.PlainAuth(
 		"",
