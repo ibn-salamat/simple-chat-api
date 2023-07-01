@@ -22,9 +22,10 @@ func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 
 	var newUser NewUser
+	newUser.Email = strings.Trim(newUser.Email, " ")
 
 	err := decoder.Decode(&newUser)
-	if err != nil || strings.Trim(newUser.Email, " ") == "" {
+	if err != nil || newUser.Email == "" {
 		w.WriteHeader(http.StatusBadRequest)
 
 		jsonResp := response{
@@ -37,8 +38,6 @@ func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-
-	newUser.Email = strings.Trim(newUser.Email, " ")
 
 	row := database.DB.QueryRow("SELECT email FROM users WHERE email = $1", newUser.Email).Scan(&newUser.Email)
 
