@@ -105,6 +105,9 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 			"errorMessage": err.Error(),
 		}
 
+		// clear db
+		database.DB.QueryRow("DELETE FROM users_confirmation WHERE email = $1", newUser.Email).Scan(&newUser.Email)
+
 		jsonBody, _ := json.Marshal(jsonResp)
 
 		w.Write(jsonBody)
