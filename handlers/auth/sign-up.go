@@ -12,8 +12,7 @@ import (
 )
 
 type NewUser struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email string `json:"email"`
 }
 
 func SignUpHandler(w http.ResponseWriter, r *http.Request) {
@@ -25,11 +24,11 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := decoder.Decode(&newUser)
 
-	if err != nil || strings.Trim(newUser.Email, " ") == "" || strings.Trim(newUser.Password, " ") == "" {
+	if err != nil || strings.Trim(newUser.Email, " ") == "" {
 		w.WriteHeader(http.StatusBadRequest)
 
 		jsonResp := response{
-			"errorMessage": "Email and password are required!",
+			"errorMessage": "Email is required!",
 		}
 
 		jsonBody, _ := json.Marshal(jsonResp)
@@ -57,7 +56,30 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	message := []byte("Subject: ConfirmationPlease dont share this information")
+	confirmationCode := helpers.CreateConfirmationCode()
+
+	_, err = database.DB.Query(`
+	INSERT INTO users_confirmation 
+	(email, confirmation_code) 
+	VALUES ($1, $2)
+	`, newUser.Email, confirmationCode)
+
+	if err != nil {
+
+		w.WriteHeader(http.StatusBadRequest)
+
+		jsonResp := response{
+			"errorMessage": err.Error(),
+		}
+
+		jsonBody, _ := json.Marshal(jsonResp)
+
+		w.Write(jsonBody)
+
+		return
+	}
+
+	message := []byte(fmt.Sprintf("Subject: Confirmation. Please dont share this information \n Your code: %s", confirmationCode))
 	addr := "smtp.gmail.com: 587"
 	auth := smtp.PlainAuth(
 		"",
@@ -65,9 +87,7 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 		helpers.GetEnvValue("GOOGLE_GMAIL_KEY"),
 		"smtp.gmail.com",
 	)
-
 	from := "admin@simple-chat.com"
-
 	to := []string{newUser.Email}
 
 	err = smtp.SendMail(
