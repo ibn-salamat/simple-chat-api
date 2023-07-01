@@ -26,11 +26,9 @@ func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := decoder.Decode(&newUser)
 	if err != nil || newUser.Email == "" {
-
-		jsonResp := response{
+		jsonBody, _ := json.Marshal(response{
 			"errorMessage": "Email is required!",
-		}
-		jsonBody, _ := json.Marshal(jsonResp)
+		})
 
 		w.Write(jsonBody)
 		w.WriteHeader(http.StatusBadRequest)
@@ -40,10 +38,9 @@ func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 	row := database.DB.QueryRow("SELECT email FROM users WHERE email = $1", newUser.Email).Scan(&newUser.Email)
 
 	if row != sql.ErrNoRows {
-		jsonResp := response{
+		jsonBody, _ := json.Marshal(response{
 			"errorMessage": "Email already exists.",
-		}
-		jsonBody, _ := json.Marshal(jsonResp)
+		})
 
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(jsonBody)
@@ -66,10 +63,9 @@ func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 			errorMessage = "We have already sent code confirmation. Please check your email"
 		}
 
-		jsonResp := response{
+		jsonBody, _ := json.Marshal(response{
 			"errorMessage": errorMessage,
-		}
-		jsonBody, _ := json.Marshal(jsonResp)
+		})
 
 		w.Write(jsonBody)
 		w.WriteHeader(http.StatusBadRequest)
@@ -99,20 +95,18 @@ func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 		// clear db
 		database.DB.QueryRow("DELETE FROM users_confirmation WHERE email = $1", newUser.Email).Scan(&newUser.Email)
 
-		jsonResp := response{
+		jsonBody, _ := json.Marshal(response{
 			"errorMessage": err.Error(),
-		}
-		jsonBody, _ := json.Marshal(jsonResp)
+		})
 
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(jsonBody)
 		return
 	}
 
-	jsonResp := response{
+	jsonBody, _ := json.Marshal(response{
 		"message": fmt.Sprintf("We have sent code to your email: %s", newUser.Email),
-	}
-	jsonBody, _ := json.Marshal(jsonResp)
+	})
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonBody)
