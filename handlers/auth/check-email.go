@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"ibn-salamat/simple-chat-api/database"
@@ -34,9 +33,9 @@ func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	row := database.DB.QueryRow("SELECT email FROM users WHERE email = $1", newUser.Email).Scan(&newUser.Email)
+	err = database.DB.QueryRow("SELECT email FROM users WHERE email = $1", newUser.Email).Scan(&newUser.Email)
 
-	if row != sql.ErrNoRows {
+	if err == nil {
 		jsonBody, _ := json.Marshal(response{
 			"errorMessage": "Email already exists.",
 		})
@@ -112,7 +111,7 @@ func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 
 	// delete temporary user data
 	go func() {
-		time.Sleep(30 * time.Second)
+		time.Sleep(300 * time.Second)
 
 		database.DB.Exec("DELETE FROM users_confirmation WHERE email = $1", newUser.Email)
 	}()
