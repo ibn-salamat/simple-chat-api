@@ -46,17 +46,15 @@ func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
 	`, data.Email,
 	).Scan(&confirmed, &leftTriesCount, &confirmationCode)
 
-	if err == sql.ErrNoRows {
-		jsonBody, _ := json.Marshal(response{
-			"errorMessage": "Time for confirmation is up. Please, start from the beginning.",
-		})
+	if err != nil {
+		errorMessage := err.Error()
 
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(jsonBody)
-		return
-	} else if err != nil {
+		if err == sql.ErrNoRows {
+			errorMessage = "Time for confirmation is up. Please, start from the beginning."
+		}
+
 		jsonBody, _ := json.Marshal(response{
-			"errorMessage": err.Error(),
+			"errorMessage": errorMessage,
 		})
 
 		w.WriteHeader(http.StatusBadRequest)
