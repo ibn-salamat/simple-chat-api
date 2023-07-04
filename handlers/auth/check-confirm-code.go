@@ -50,7 +50,7 @@ func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
 		errorMessage := err.Error()
 
 		if err == sql.ErrNoRows {
-			errorMessage = "Time for confirmation is up. Please, start from the beginning."
+			errorMessage = "Time for confirmation is up or you tried all tries. Please, start from the beginning."
 		}
 
 		jsonBody, _ := json.Marshal(response{
@@ -62,8 +62,55 @@ func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Printf("\nReceiced code: '%s'. Correct code: '%s'", data.Code, confirmationCode)
-	fmt.Println(leftTriesCount)
+	if data.Code != confirmationCode {
+		if leftTriesCount > 1 {
+			go func() {
+				_, err = database.DB.Exec(`
+				UPDATE users_confirmation left_tries_count SET left_tries_count = $2 WHERE email = $1
+			`, data.Email, leftTriesCount-1)
+
+				if err != nil {
+					fmt.Println(err)
+				}
+			}()
+
+			jsonBody, _ := json.Marshal(response{
+				"errorMessage":     "Incorrect code confirmation",
+				"left_tries_count": leftTriesCount - 1,
+			})
+
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(jsonBody)
+			return
+		} else if leftTriesCount == 1 {
+			go func() {
+				_, err = database.DB.Exec(`
+				DELETE FROM users_confirmation
+				WHERE email = $1 
+			`, data.Email)
+
+				if err != nil {
+					fmt.Println(err)
+				}
+			}()
+
+			jsonBody, _ := json.Marshal(response{
+				"errorMessage":     "Try with new code.",
+				"left_tries_count": leftTriesCount - 1,
+			})
+
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write(jsonBody)
+			return
+		}
+
+	}
+
+	if data.Code != confirmationCode {
+		fmt.Printf("\nReceiced code: '%s'. Correct code: '%s'", data.Code, confirmationCode)
+		fmt.Println(leftTriesCount)
+	}
+
 }
 
 // test confirmation

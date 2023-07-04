@@ -1,3 +1,3 @@
 package auth
 
-type response map[string]string
+type response map[string]any
