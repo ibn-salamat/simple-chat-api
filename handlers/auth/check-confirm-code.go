@@ -62,6 +62,16 @@ func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if confirmed {
+		jsonBody, _ := json.Marshal(response{
+			"message": "Already confirmed",
+		})
+
+		w.WriteHeader(http.StatusOK)
+		w.Write(jsonBody)
+		return
+	}
+
 	if data.Code != confirmationCode {
 		if leftTriesCount > 1 {
 			go func() {
@@ -106,11 +116,32 @@ func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	if data.Code != confirmationCode {
-		fmt.Printf("\nReceiced code: '%s'. Correct code: '%s'", data.Code, confirmationCode)
-		fmt.Println(leftTriesCount)
+	if data.Code == confirmationCode {
+		go func() {
+			_, err = database.DB.Exec(`
+			UPDATE users_confirmation confirmed SET confirmed = TRUE WHERE email = $1
+		`, data.Email)
+
+			if err != nil {
+				fmt.Println(err)
+			}
+		}()
+
+		jsonBody, _ := json.Marshal(response{
+			"message": "Success",
+		})
+
+		w.WriteHeader(http.StatusOK)
+		w.Write(jsonBody)
+		return
 	}
 
+	jsonBody, _ := json.Marshal(response{
+		"errorMessage": "Internal server error. Strange case",
+	})
+
+	w.WriteHeader(http.StatusInternalServerError)
+	w.Write(jsonBody)
 }
 
 // test confirmation
