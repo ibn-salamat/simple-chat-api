@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"ibn-salamat/simple-chat-api/database"
 	"ibn-salamat/simple-chat-api/handlers/auth"
@@ -17,23 +16,8 @@ import (
 const PORT = ":3000"
 
 func main() {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		"localhost", 5432, "admin", "postgres", "simple-chat")
-
-	db, err := sql.Open("postgres", psqlInfo)
-
-	if err != nil {
-		log.Fatal("Unable to connect to Database:", err)
-	}
-
-	if err = db.Ping(); err != nil {
-		log.Fatal("Unable to connect to Database:", err)
-	}
-
-	database.DB = db
-
-	defer db.Close()
+	database.OpenDB()
+	defer database.DB.Close()
 
 	http.Handle("/ws", websocket.Handler(socket.SocketHandler))
 	http.Handle("/api/auth/sign-up/check-email", http.HandlerFunc(auth.CheckEmailHandler))
