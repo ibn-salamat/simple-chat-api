@@ -143,14 +143,3 @@ func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusInternalServerError)
 	w.Write(jsonBody)
 }
-
-// test confirmation
-// go func() {
-// 	time.Sleep(5 * time.Second)
-
-// 	_, err = database.DB.Query("UPDATE users_confirmation confirmed SET confirmed = true WHERE email = $1", newUser.Email)
-
-// 	if err != nil {
-// 		fmt.Println(err)
-// 	}
-// }()
