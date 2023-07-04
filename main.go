@@ -38,6 +38,7 @@ func main() {
 	http.Handle("/ws", websocket.Handler(socket.SocketHandler))
 	http.Handle("/api/auth/sign-up/check-email", http.HandlerFunc(auth.CheckEmailHandler))
 	http.Handle("/api/auth/sign-up/check-confirm-code", http.HandlerFunc(auth.CheckConfirmCodeHandler))
+	http.Handle("/api/auth/sign-up/set-password", http.HandlerFunc(auth.SetPasswordHandler))
 
 	http.Handle("/api/auth/sign-in", http.HandlerFunc(auth.SignInHandler))
 
