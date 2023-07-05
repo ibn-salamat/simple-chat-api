@@ -9,15 +9,16 @@ import (
 	"strings"
 )
 
-type Data struct {
-	Email string `json:"email"`
-	Code  string `json:"code"`
-}
-
 func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	type Data struct {
+		Email string `json:"email"`
+		Code  string `json:"code"`
+	}
 
 	var data Data
+
+	w.Header().Set("Content-Type", "application/json")
+
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&data)
 
