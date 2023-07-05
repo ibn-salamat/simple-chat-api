@@ -33,4 +33,6 @@ func SetPasswordHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	bcrypt.
+
 }
