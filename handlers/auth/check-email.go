@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"ibn-salamat/simple-chat-api/database"
 	"ibn-salamat/simple-chat-api/helpers"
+	"ibn-salamat/simple-chat-api/tools"
 	"net/http"
-	"net/smtp"
 	"strings"
 	"time"
 )
@@ -70,24 +70,10 @@ func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	message := []byte(fmt.Sprintf("Subject: Simple-chat Confirmation. \r\n\r\n\n Your code: %s", confirmationCode))
-	addr := "smtp.gmail.com: 587"
-	auth := smtp.PlainAuth(
-		"",
-		"n.salamatoff@gmail.com",
-		helpers.GetEnvValue("GOOGLE_GMAIL_KEY"),
-		"smtp.gmail.com",
-	)
-	from := "admin@simple-chat.com"
-	to := []string{newUser.Email}
+	subject := "Subject: Simple-chat Confirmation"
+	content := fmt.Sprintf("Your confirmation code: %s", confirmationCode)
 
-	err = smtp.SendMail(
-		addr,
-		auth,
-		from,
-		to,
-		message,
-	)
+	err = tools.SendMail(newUser.Email, subject, content)
 
 	if err != nil {
 		// clear db
