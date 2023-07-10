@@ -3,7 +3,6 @@ package auth
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"ibn-salamat/simple-chat-api/database"
 	"log"
 	"net/http"
