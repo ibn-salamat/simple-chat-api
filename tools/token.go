@@ -1,33 +1,35 @@
 package tools
 
 import (
+	"errors"
 	"github.com/golang-jwt/jwt"
+	"ibn-salamat/simple-chat-api/helpers"
 	"log"
-	"os"
 )
 
 const REFRESH_TOKEN_TYPE = "REFRESH_TOKEN_TYPE"
 const ACCESS_TOKEN_TYPE = "ACCESS_TOKEN_TYPE"
 
 
-func generateJWT(tokenType string , exp string, email string) (string, error) {
+func GenerateJWT(tokenType string , exp string, email string) (string, error) {
 	var secretKey string
 	
 	if tokenType == ACCESS_TOKEN_TYPE {
-		secretKey = os.Getenv("ACCESS_TOKEN_SECRET")
+		secretKey = helpers.GetEnvValue("ACCESS_TOKEN_SECRET")
 	} else if tokenType == REFRESH_TOKEN_TYPE {
-		secretKey = os.Getenv("REFRESH_TOKEN_SECRET")
+		secretKey = helpers.GetEnvValue("REFRESH_TOKEN_SECRET")
 	} else {
-		log.Fatal("Wrong token type")
+		log.Println("Wrong token type")
+		return "", errors.New("Wrong token type")
 	}
 
-	token := jwt.New(jwt.SigningMethodEdDSA)
+	token := jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
+		exp: exp,
+		email: email,
+	})
+
 	
-	claims := token.Claims.(jwt.MapClaims)
-	claims["exp"] = exp
-	claims["email"] = email
-	
-	tokenString, err := token.SignedString(secretKey)
+	tokenString, err := token.SignedString([]byte(secretKey))
 	
 	return tokenString, err
 }

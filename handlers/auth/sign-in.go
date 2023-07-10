@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"ibn-salamat/simple-chat-api/database"
+	"ibn-salamat/simple-chat-api/tools"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -78,6 +80,21 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 
-	fmt.Println("success")
+	accesToken, err := tools.GenerateJWT(tools.ACCESS_TOKEN_TYPE, "5min", data.Email)
+
+	if err != nil {
+		jsonBody, _ := json.Marshal(response{
+			"errorMessage": "Something went wrong",
+			})
+
+		log.Println(err)
+
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(jsonBody)
+
+		return
+	}
+
+	fmt.Println(accesToken)
 
 }
