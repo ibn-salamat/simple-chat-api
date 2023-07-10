@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"ibn-salamat/simple-chat-api/database"
+	"log"
 	"net/http"
 	"strings"
 
@@ -136,7 +137,7 @@ func SetPasswordHandler(w http.ResponseWriter, r *http.Request) {
 	`, data.Email)
 
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 		}
 	}()
 }
