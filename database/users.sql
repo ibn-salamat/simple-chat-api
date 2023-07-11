@@ -1,7 +1,7 @@
 CREATE TABLE users (
     email character varying(30) NOT NULL UNIQUE,
     password text NOT NULL
-    refresh_token text UNIQUE
+    token text UNIQUE
 );
 
 CREATE TABLE users_confirmation (

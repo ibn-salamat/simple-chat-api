@@ -80,7 +80,7 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 
-	accesToken, err := tools.GenerateJWT(tools.ACCESS_TOKEN_TYPE, data.Email)
+	token, err := tools.GenerateJWT(tools.ACCESS_TOKEN_TYPE, data.Email)
 
 	if err != nil {
 		jsonBody, _ := json.Marshal(response{
@@ -95,24 +95,10 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refreshToken, err := tools.GenerateJWT(tools.REFRESH_TOKEN_TYPE, data.Email)
-
-	if err != nil {
-		jsonBody, _ := json.Marshal(response{
-			"errorMessage": "Something went wrong",
-			})
-
-		log.Println(err)
-
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(jsonBody)
-
-		return
-	}
 
 	_, err = database.DB.Exec(`
-			UPDATE users SET refresh_token = $1 WHERE email = $2
-	`, refreshToken, data.Email)
+			UPDATE users SET token = $1 WHERE email = $2
+	`, token, data.Email)
 
 	if err != nil {
 		jsonBody, _ := json.Marshal(response{
@@ -129,13 +115,12 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jsonBody, _ := json.Marshal(response{
-		"accessToken": accesToken,
-		"refreshToken": refreshToken,
+		"token": token,
 	})
 
 	http.SetCookie(w, &http.Cookie{
 		Name: "token",
-		Value: accesToken,
+		Value: token,
 	})
 
 	w.WriteHeader(http.StatusOK)
