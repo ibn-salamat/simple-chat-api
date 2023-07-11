@@ -28,8 +28,8 @@ func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 			"errorMessage": "Email is required!",
 		})
 
-		w.Write(jsonBody)
 		w.WriteHeader(http.StatusBadRequest)
+		w.Write(jsonBody)
 		return
 	}
 
