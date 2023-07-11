@@ -77,7 +77,7 @@ func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
 		if leftTriesCount > 1 {
 			go func() {
 				_, err = database.DB.Exec(`
-				UPDATE users_confirmation left_tries_count SET left_tries_count = $2 WHERE email = $1
+				UPDATE users_confirmation SET left_tries_count = $2 WHERE email = $1
 			`, data.Email, leftTriesCount-1)
 
 				if err != nil {
