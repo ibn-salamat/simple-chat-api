@@ -13,6 +13,8 @@ import (
 
 func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
 
 	type Data struct {
 		Email    string `json:"email"`
@@ -134,7 +136,6 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name: "token",
 		Value: accesToken,
-		HttpOnly: true,
 	})
 
 	w.WriteHeader(http.StatusOK)
