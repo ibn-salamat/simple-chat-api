@@ -79,7 +79,7 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 
-	accesToken, err := tools.GenerateJWT(tools.ACCESS_TOKEN_TYPE, "5min", data.Email)
+	accesToken, err := tools.GenerateJWT(tools.ACCESS_TOKEN_TYPE, data.Email)
 
 	if err != nil {
 		jsonBody, _ := json.Marshal(response{
@@ -94,7 +94,7 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refreshToken, err := tools.GenerateJWT(tools.REFRESH_TOKEN_TYPE, "10min", data.Email)
+	refreshToken, err := tools.GenerateJWT(tools.REFRESH_TOKEN_TYPE, data.Email)
 
 	if err != nil {
 		jsonBody, _ := json.Marshal(response{
