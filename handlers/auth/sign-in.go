@@ -15,7 +15,6 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
-
 	type Data struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
@@ -130,7 +129,8 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jsonBody, _ := json.Marshal(response{
-		"token": refreshToken,
+		"accessToken": accesToken,
+		"refreshToken": refreshToken,
 	})
 
 	http.SetCookie(w, &http.Cookie{
