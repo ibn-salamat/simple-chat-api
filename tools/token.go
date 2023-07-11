@@ -23,7 +23,7 @@ func GenerateJWT(tokenType string , exp string, email string) (string, error) {
 		return "", errors.New("Wrong token type")
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		exp: exp,
 		email: email,
 	})
