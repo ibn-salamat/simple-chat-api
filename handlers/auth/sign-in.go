@@ -3,7 +3,6 @@ package auth
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"ibn-salamat/simple-chat-api/database"
 	"ibn-salamat/simple-chat-api/tools"
@@ -95,6 +94,49 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(accesToken)
+	refreshToken, err := tools.GenerateJWT(tools.REFRESH_TOKEN_TYPE, "10min", data.Email)
 
+	if err != nil {
+		jsonBody, _ := json.Marshal(response{
+			"errorMessage": "Something went wrong",
+			})
+
+		log.Println(err)
+
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(jsonBody)
+
+		return
+	}
+
+	_, err = database.DB.Exec(`
+			UPDATE users SET refresh_token = $1 WHERE email = $2
+	`, refreshToken, data.Email)
+
+	if err != nil {
+		jsonBody, _ := json.Marshal(response{
+			"errorMessage": "Something went wrong",
+			})
+
+		log.Println(err)
+
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(jsonBody)
+
+		return
+
+	}
+
+	jsonBody, _ := json.Marshal(response{
+		"token": refreshToken,
+	})
+
+	http.SetCookie(w, &http.Cookie{
+		Name: "token",
+		Value: accesToken,
+		HttpOnly: true,
+	})
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonBody)
 }
