@@ -10,7 +10,6 @@ import (
 
 const ACCESS_TOKEN_TYPE = "ACCESS_TOKEN_TYPE"
 
-
 func GenerateJWT(tokenType string , email string) (string, error) {
 	var secretKey string
 	var exp string
@@ -32,4 +31,33 @@ func GenerateJWT(tokenType string , email string) (string, error) {
 	tokenString, err := token.SignedString([]byte(secretKey));
 	
 	return tokenString, err
+}
+
+func CheckToken (tokenString string) error {
+	var claims struct{
+		Exp string `json:"exp"`
+		jwt.StandardClaims
+	}
+
+	_, err := jwt.ParseWithClaims(tokenString, &claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(helpers.GetEnvValue("ACCESS_TOKEN_SECRET")), nil
+	})
+
+	v, _ := err.(*jwt.ValidationError)
+
+	if err != nil {
+		exp, timeErr := time.Parse(time.RFC3339, claims.Exp)
+		if timeErr != nil {
+			log.Println(err)
+			return timeErr
+		}
+
+		if v.Errors == jwt.ValidationErrorExpired &&  exp.Unix() > time.Now().Unix() - (86400 * 14){
+			return errors.New("token is expired")
+		};
+
+		return err
+	}
+
+	return nil
 }

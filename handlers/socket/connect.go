@@ -3,6 +3,7 @@ package socket
 import (
 	"encoding/json"
 	"fmt"
+	"ibn-salamat/simple-chat-api/tools"
 	"log"
 	"net/http"
 
@@ -28,8 +29,19 @@ func SocketHandler(ws *websocket.Conn) {
 		return
 	}
 
+	// check token is valid
+	err = tools.CheckToken(token.Value)
 
-	fmt.Println(token.Value)
+	if err != nil {
+		jsonBody, _ := json.Marshal(response{
+			"errorMessage": err.Error(),
+			})
+
+		_, err = ws.Write(jsonBody)
+
+		return
+	}
+	
 	log.Println("User connected")
 
 	for {
