@@ -38,7 +38,15 @@ func SocketHandler(ws *websocket.Conn) {
 			})
 
 		_, err = ws.Write(jsonBody)
+		if err != nil {
+			log.Println(err)
+		}
 
+		err = ws.Close();
+		if err != nil {
+			log.Println(err)
+		}
+		
 		return
 	}
 	
@@ -46,6 +54,23 @@ func SocketHandler(ws *websocket.Conn) {
 
 	for {
 		var reply string
+		err = tools.CheckToken(token.Value)
+
+		if err != nil {
+			jsonBody, _ := json.Marshal(response{
+				"errorMessage": err.Error(),
+				})
+
+			_, err = ws.Write(jsonBody)
+
+			err = ws.Close();
+			if err != nil {
+				log.Println(err)
+			}
+
+			log.Println("User disconnected");
+			break
+		}
 
 		if err = websocket.Message.Receive(ws, &reply); err != nil {
 			if err.Error() == "EOF" {

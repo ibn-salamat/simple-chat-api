@@ -10,12 +10,15 @@ import (
 
 const ACCESS_TOKEN_TYPE = "ACCESS_TOKEN_TYPE"
 
+type Claims struct{
+	Email string `json:"email"`
+	jwt.StandardClaims
+}
+
 func GenerateJWT(tokenType string , email string) (string, error) {
 	var secretKey string
-	var exp string
 	
 	if tokenType == ACCESS_TOKEN_TYPE {
-		exp = time.Now().Add(12 * time.Hour).Format(time.RFC3339)
 		secretKey = helpers.GetEnvValue("ACCESS_TOKEN_SECRET")
 	} else {
 		log.Println("Wrong token type")
@@ -25,7 +28,8 @@ func GenerateJWT(tokenType string , email string) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := token.Claims.(jwt.MapClaims)
-	claims["exp"] = exp
+
+	claims["exp"] = time.Now().Add(30 * time.Second).Unix()
 	claims["email"] = email
 
 	tokenString, err := token.SignedString([]byte(secretKey));
@@ -34,11 +38,7 @@ func GenerateJWT(tokenType string , email string) (string, error) {
 }
 
 func CheckToken (tokenString string) error {
-	var claims struct{
-		Exp string `json:"exp"`
-		jwt.StandardClaims
-	}
-
+	var claims Claims
 	_, err := jwt.ParseWithClaims(tokenString, &claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(helpers.GetEnvValue("ACCESS_TOKEN_SECRET")), nil
 	})
@@ -46,13 +46,7 @@ func CheckToken (tokenString string) error {
 	v, _ := err.(*jwt.ValidationError)
 
 	if err != nil {
-		exp, timeErr := time.Parse(time.RFC3339, claims.Exp)
-		if timeErr != nil {
-			log.Println(err)
-			return timeErr
-		}
-
-		if v.Errors == jwt.ValidationErrorExpired &&  exp.Unix() > time.Now().Unix() - (86400 * 14){
+		if v.Errors == jwt.ValidationErrorExpired &&  claims.ExpiresAt > time.Now().Unix(){
 			return errors.New("token is expired")
 		};
 
