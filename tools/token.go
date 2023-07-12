@@ -29,7 +29,7 @@ func GenerateJWT(tokenType string , email string) (string, error) {
 
 	claims := token.Claims.(jwt.MapClaims)
 
-	claims["exp"] = time.Now().Add(30 * time.Second).Unix()
+	claims["exp"] = time.Now().Add(1 * time.Minute).Unix()
 	claims["email"] = email
 
 	tokenString, err := token.SignedString([]byte(secretKey));
@@ -43,13 +43,7 @@ func CheckToken (tokenString string) error {
 		return []byte(helpers.GetEnvValue("ACCESS_TOKEN_SECRET")), nil
 	})
 
-	v, _ := err.(*jwt.ValidationError)
-
 	if err != nil {
-		if v.Errors == jwt.ValidationErrorExpired &&  claims.ExpiresAt > time.Now().Unix(){
-			return errors.New("token is expired")
-		};
-
 		return err
 	}
 
