@@ -17,7 +17,7 @@ import (
 )
 
 func init() {
-	env, err := godotenv.Read()
+	env, err := godotenv.Read("./config/.env")
 
 	if err != nil {
 		log.Fatalf("Could not find .env file")
