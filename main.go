@@ -23,8 +23,6 @@ func init() {
 		log.Fatalf("Could not find .env file")
 	}
 
-	fmt.Println(env)
-
 	config.EnvData.ACCESS_TOKEN_SECRET = env["ACCESS_TOKEN_SECRET"]
 	config.EnvData.REFRESH_TOKEN_SECRET = env["REFRESH_TOKEN_SECRET"]
 
