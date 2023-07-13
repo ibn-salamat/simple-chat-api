@@ -8,7 +8,7 @@ import (
 
 func SendMail(to string, subject string, content string) error {
 	message := []byte(fmt.Sprintf("Subject: %s \r\n\r\n\n %s", subject, content))
-	addr := "smtp.gmail.com: 465"
+	addr := "smtp.gmail.com:587"
 	auth := smtp.PlainAuth(
 		"",
 		"n.salamatoff@gmail.com",
