@@ -11,7 +11,7 @@ import (
 )
 
 func GetEnvValue(key string) string {
-	entries, err := os.ReadDir("./")
+	entries, err := os.ReadDir("../")
 	if err != nil {
 		log.Fatal(err)
 	}
