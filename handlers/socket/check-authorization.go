@@ -11,7 +11,8 @@ import (
 
 func CheckAuthorization(ws *websocket.Conn) error {
 	token, resultErr := ws.Request().Cookie("token")
-	
+	// TODO ws.Config().Header.Set("Set-Cookie", "token=token")
+
 	// check token exists
 	if resultErr != nil {
 		if resultErr == http.ErrNoCookie {
