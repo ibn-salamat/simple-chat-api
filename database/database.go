@@ -9,15 +9,10 @@ import (
 
 var DB *sql.DB
 
-var (
-	host     string
-	port     string
-	user     string
-	password string
-	dbname   string
-)
-
 func OpenDB() {
+	fmt.Println(config.EnvData)
+	fmt.Println(config.EnvData.PGHOST)
+
 	DBCredentials := fmt.Sprintf("host=%s port=%s user=%s "+
 		"password=%s dbname=%s sslmode=disable",
 		config.EnvData.PGHOST, config.EnvData.PGPORT, config.EnvData.PGUSER, config.EnvData.PGPASSWORD, config.EnvData.PGDATABASE)
