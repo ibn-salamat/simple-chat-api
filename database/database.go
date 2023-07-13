@@ -3,25 +3,25 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"ibn-salamat/simple-chat-api/helpers"
+	"ibn-salamat/simple-chat-api/config"
 	"log"
 )
 
 var DB *sql.DB
 
 var (
-	host     = helpers.GetEnvValue("PGHOST")
-	port     = helpers.GetEnvValue("PGPORT")
-	user     = helpers.GetEnvValue("PGUSER")
-	password = helpers.GetEnvValue("PGPASSWORD")
-	dbname   = helpers.GetEnvValue("PGDATABASE")
+	host     string
+	port     string
+	user     string
+	password string
+	dbname   string
 )
 
-var DBCredentials = fmt.Sprintf("host=%s port=%s user=%s "+
-	"password=%s dbname=%s sslmode=disable",
-	host, port, user, password, dbname)
-
 func OpenDB() {
+	DBCredentials := fmt.Sprintf("host=%s port=%s user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		config.EnvData.PGHOST, config.EnvData.PGPORT, config.EnvData.PGUSER, config.EnvData.PGPASSWORD, config.EnvData.PGDATABASE)
+
 	db, err := sql.Open("postgres", DBCredentials)
 
 	if err != nil {

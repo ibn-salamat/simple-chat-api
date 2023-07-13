@@ -2,7 +2,7 @@ package tools
 
 import (
 	"fmt"
-	"ibn-salamat/simple-chat-api/helpers"
+	"ibn-salamat/simple-chat-api/config"
 	"net/smtp"
 )
 
@@ -12,7 +12,7 @@ func SendMail(to string, subject string, content string) error {
 	auth := smtp.PlainAuth(
 		"",
 		"n.salamatoff@gmail.com",
-		helpers.GetEnvValue("GOOGLE_GMAIL_KEY"),
+		config.EnvData.GOOGLE_GMAIL_KEY,
 		"smtp.gmail.com",
 	)
 	from := "admin@simple-chat.com"

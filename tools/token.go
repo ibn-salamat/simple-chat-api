@@ -2,24 +2,25 @@ package tools
 
 import (
 	"errors"
-	"github.com/golang-jwt/jwt"
-	"ibn-salamat/simple-chat-api/helpers"
+	"ibn-salamat/simple-chat-api/config"
 	"log"
 	"time"
+
+	"github.com/golang-jwt/jwt"
 )
 
 const ACCESS_TOKEN_TYPE = "ACCESS_TOKEN_TYPE"
 
-type Claims struct{
+type Claims struct {
 	Email string `json:"email"`
 	jwt.StandardClaims
 }
 
-func GenerateJWT(tokenType string , email string) (string, error) {
+func GenerateJWT(tokenType string, email string) (string, error) {
 	var secretKey string
-	
+
 	if tokenType == ACCESS_TOKEN_TYPE {
-		secretKey = helpers.GetEnvValue("ACCESS_TOKEN_SECRET")
+		secretKey = config.EnvData.ACCESS_TOKEN_SECRET
 	} else {
 		log.Println("Wrong token type")
 		return "", errors.New("Wrong token type")
@@ -32,15 +33,15 @@ func GenerateJWT(tokenType string , email string) (string, error) {
 	claims["exp"] = time.Now().Add(15 * time.Second).Unix()
 	claims["email"] = email
 
-	tokenString, err := token.SignedString([]byte(secretKey));
-	
+	tokenString, err := token.SignedString([]byte(secretKey))
+
 	return tokenString, err
 }
 
-func CheckToken (tokenString string) error {
+func CheckToken(tokenString string) error {
 	var claims Claims
 	_, err := jwt.ParseWithClaims(tokenString, &claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte(helpers.GetEnvValue("ACCESS_TOKEN_SECRET")), nil
+		return []byte(config.EnvData.ACCESS_TOKEN_SECRET), nil
 	})
 
 	if err != nil {
