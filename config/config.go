@@ -9,6 +9,7 @@ type Env struct {
 	PGUSER               string
 	PGPASSWORD           string
 	PGDATABASE           string
+	PORT                 string
 }
 
 var EnvData Env

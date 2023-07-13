@@ -16,8 +16,6 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-const PORT = ":3000"
-
 func init() {
 	env, err := godotenv.Read()
 
@@ -35,6 +33,10 @@ func init() {
 	config.EnvData.PGPASSWORD = env["PGPASSWORD"]
 	config.EnvData.PGPORT = env["PGPORT"]
 	config.EnvData.PGUSER = env["PGUSER"]
+
+	if config.EnvData.PORT == "" {
+		config.EnvData.PORT = "3000"
+	}
 }
 
 func main() {
@@ -52,9 +54,9 @@ func main() {
 	http.Handle("/api/auth/sign-up/set-password", http.HandlerFunc(auth.SetPasswordHandler))
 	http.Handle("/api/auth/sign-in", http.HandlerFunc(auth.SignInHandler))
 
-	fmt.Printf("Server started on PORT %s \n", PORT)
+	fmt.Printf("Server started on PORT %s \n", config.EnvData.PORT)
 
-	if err := http.ListenAndServe(PORT, nil); err != nil {
+	if err := http.ListenAndServe("0.0.0.0:"+config.EnvData.PORT, nil); err != nil {
 		log.Fatal("ListenAndServe:", err)
 	}
 }
