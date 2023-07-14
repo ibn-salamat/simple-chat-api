@@ -65,7 +65,7 @@ func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if confirmed {
-		jsonBody, _ := json.Marshal(types.ResponseMap
+		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"message": "Already confirmed",
 		})
 
@@ -86,7 +86,7 @@ func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
 				}
 			}()
 
-			jsonBody, _ := json.Marshal(types.ResponseMap
+			jsonBody, _ := json.Marshal(types.ResponseMap{
 				"errorMessage":     "Incorrect code confirmation",
 				"left_tries_count": leftTriesCount - 1,
 			})
@@ -106,7 +106,7 @@ func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
 				}
 			}()
 
-			jsonBody, _ := json.Marshal(types.ResponseMap
+			jsonBody, _ := json.Marshal(types.ResponseMap{
 				"errorMessage":     "Try with new code.",
 				"left_tries_count": leftTriesCount - 1,
 			})
@@ -129,7 +129,7 @@ func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}()
 
-		jsonBody, _ := json.Marshal(types.ResponseMap
+		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"message": "Success",
 		})
 
@@ -138,7 +138,7 @@ func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonBody, _ := json.Marshal(types.ResponseMap
+	jsonBody, _ := json.Marshal(types.ResponseMap{
 		"errorMessage": "Internal server error. Strange case",
 	})
 
