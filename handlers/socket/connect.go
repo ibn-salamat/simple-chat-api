@@ -2,10 +2,11 @@ package socket
 
 import (
 	"fmt"
-	"golang.org/x/net/websocket"
 	"log"
 	"math/rand"
 	"time"
+
+	"golang.org/x/net/websocket"
 )
 
 func SocketHandler(ws *websocket.Conn) {
@@ -25,7 +26,7 @@ func SocketHandler(ws *websocket.Conn) {
 	go func() {
 		for {
 			select {
-			case <- ticker.C:
+			case <-ticker.C:
 				// TODO
 				authorizationError = CheckAuthorization(ws)
 

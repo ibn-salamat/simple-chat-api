@@ -12,8 +12,6 @@ import (
 )
 
 func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
 	if r.Method != http.MethodPost {
 		notFound.NotFound(w, r)
 		return

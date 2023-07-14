@@ -7,6 +7,7 @@ import (
 	"ibn-salamat/simple-chat-api/handlers/auth"
 	notFound "ibn-salamat/simple-chat-api/handlers/not-found"
 	"ibn-salamat/simple-chat-api/handlers/socket"
+	"ibn-salamat/simple-chat-api/middlewares"
 	"log"
 	"net/http"
 
@@ -45,16 +46,17 @@ func main() {
 	defer database.DB.Close()
 
 	http.HandleFunc("/ws",
-		func(w http.ResponseWriter, req *http.Request) {
+		func(w http.ResponseWriter, r *http.Request) {
 			s := websocket.Server{Handler: websocket.Handler(socket.SocketHandler)}
-			s.ServeHTTP(w, req)
+
+			s.ServeHTTP(w, r)
 		})
 
-	http.Handle("/api/auth/sign-up/check-email", http.HandlerFunc(auth.CheckEmailHandler))
-	http.Handle("/api/auth/sign-up/check-confirm-code", http.HandlerFunc(auth.CheckConfirmCodeHandler))
-	http.Handle("/api/auth/sign-up/set-password", http.HandlerFunc(auth.SetPasswordHandler))
-	http.Handle("/api/auth/sign-in", http.HandlerFunc(auth.SignInHandler))
-	http.Handle("/", http.HandlerFunc(notFound.NotFound))
+	http.Handle("/api/auth/sign-up/check-email", middlewares.SetBasicHeaders(http.HandlerFunc(auth.CheckEmailHandler)))
+	http.Handle("/api/auth/sign-up/check-confirm-code", middlewares.SetBasicHeaders(http.HandlerFunc(auth.CheckConfirmCodeHandler)))
+	http.Handle("/api/auth/sign-up/set-password", middlewares.SetBasicHeaders(http.HandlerFunc(auth.SetPasswordHandler)))
+	http.Handle("/api/auth/sign-in", middlewares.SetBasicHeaders(http.HandlerFunc(auth.SignInHandler)))
+	http.Handle("/", middlewares.SetBasicHeaders(http.HandlerFunc(notFound.NotFound)))
 
 	fmt.Printf("Server started on PORT %s \n", config.EnvData.PORT)
 

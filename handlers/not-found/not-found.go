@@ -6,9 +6,7 @@ import (
 	"net/http"
 )
 
-func NotFound(w http.ResponseWriter, _ *http.Request)  {
-	w.Header().Set("Content-Type", "application/json")
-	
+func NotFound(w http.ResponseWriter, _ *http.Request) {
 	jsonBody, _ := json.Marshal(types.ResponseMap{
 		"errorMessage": "Not found",
 	})
