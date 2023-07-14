@@ -3,18 +3,23 @@ package auth
 import (
 	"database/sql"
 	"encoding/json"
-	"golang.org/x/crypto/bcrypt"
 	"ibn-salamat/simple-chat-api/database"
 	"ibn-salamat/simple-chat-api/tools"
 	"ibn-salamat/simple-chat-api/types"
 	"log"
 	"net/http"
 	"strings"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	if r.Method != http.MethodPost {
+		http.NotFound(w, r)
+		return
+	}
 
 	type Data struct {
 		Email    string `json:"email"`
@@ -32,7 +37,7 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil || data.Email == "" || data.Password == "" {
 		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"errorMessage": "Incorrect json. Required fields: email, password.",
-			})
+		})
 
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(jsonBody)
@@ -59,7 +64,7 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 
 		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"errorMessage": errorMessage,
-			})
+		})
 
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(jsonBody)
@@ -72,7 +77,7 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"errorMessage": "Incorrect password",
-			})
+		})
 
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(jsonBody)
@@ -80,13 +85,12 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	token, err := tools.GenerateJWT(tools.ACCESS_TOKEN_TYPE, data.Email)
 
 	if err != nil {
 		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"errorMessage": "Something went wrong",
-			})
+		})
 
 		log.Println(err)
 
@@ -96,7 +100,6 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	_, err = database.DB.Exec(`
 			UPDATE users SET token = $1 WHERE email = $2
 	`, token, data.Email)
@@ -104,7 +107,7 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"errorMessage": "Something went wrong",
-			})
+		})
 
 		log.Println(err)
 
@@ -120,7 +123,7 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	})
 
 	http.SetCookie(w, &http.Cookie{
-		Name: "token",
+		Name:  "token",
 		Value: token,
 	})
 

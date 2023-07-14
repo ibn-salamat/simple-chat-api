@@ -11,14 +11,19 @@ import (
 )
 
 func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	if r.Method != http.MethodPost {
+		http.NotFound(w, r)
+		return
+	}
+
 	type Data struct {
 		Email string `json:"email"`
 		Code  string `json:"code"`
 	}
 
 	var data Data
-
-	w.Header().Set("Content-Type", "application/json")
 
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&data)
