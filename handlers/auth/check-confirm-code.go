@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"ibn-salamat/simple-chat-api/database"
+	notFound "ibn-salamat/simple-chat-api/handlers/not-found"
 	"ibn-salamat/simple-chat-api/types"
 	"log"
 	"net/http"
@@ -14,7 +15,7 @@ func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	if r.Method != http.MethodPost {
-		http.NotFound(w, r)
+		notFound.NotFound(w, r)
 		return
 	}
 
