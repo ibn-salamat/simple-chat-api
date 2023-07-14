@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"ibn-salamat/simple-chat-api/database"
+	"ibn-salamat/simple-chat-api/types"
 	"log"
 	"net/http"
 	"strings"
@@ -26,7 +27,7 @@ func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
 	data.Code = strings.Trim(data.Code, " ")
 
 	if err != nil || data.Email == "" || data.Code == "" {
-		jsonBody, _ := json.Marshal(response{
+		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"errorMessage": "Incorrect json. Required fields: email, code.",
 		})
 
@@ -54,7 +55,7 @@ func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
 			errorMessage = "Time for confirmation is up or you tried all tries. Please, start from the beginning."
 		}
 
-		jsonBody, _ := json.Marshal(response{
+		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"errorMessage": errorMessage,
 		})
 
@@ -64,7 +65,7 @@ func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if confirmed {
-		jsonBody, _ := json.Marshal(response{
+		jsonBody, _ := json.Marshal(types.ResponseMap
 			"message": "Already confirmed",
 		})
 
@@ -85,7 +86,7 @@ func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
 				}
 			}()
 
-			jsonBody, _ := json.Marshal(response{
+			jsonBody, _ := json.Marshal(types.ResponseMap
 				"errorMessage":     "Incorrect code confirmation",
 				"left_tries_count": leftTriesCount - 1,
 			})
@@ -105,7 +106,7 @@ func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
 				}
 			}()
 
-			jsonBody, _ := json.Marshal(response{
+			jsonBody, _ := json.Marshal(types.ResponseMap
 				"errorMessage":     "Try with new code.",
 				"left_tries_count": leftTriesCount - 1,
 			})
@@ -128,7 +129,7 @@ func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}()
 
-		jsonBody, _ := json.Marshal(response{
+		jsonBody, _ := json.Marshal(types.ResponseMap
 			"message": "Success",
 		})
 
@@ -137,7 +138,7 @@ func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonBody, _ := json.Marshal(response{
+	jsonBody, _ := json.Marshal(types.ResponseMap
 		"errorMessage": "Internal server error. Strange case",
 	})
 

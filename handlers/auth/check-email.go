@@ -6,6 +6,7 @@ import (
 	"ibn-salamat/simple-chat-api/database"
 	"ibn-salamat/simple-chat-api/helpers"
 	"ibn-salamat/simple-chat-api/tools"
+	"ibn-salamat/simple-chat-api/types"
 	"net/http"
 	"strings"
 	"time"
@@ -24,7 +25,7 @@ func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := decoder.Decode(&newUser)
 	if err != nil || newUser.Email == "" {
-		jsonBody, _ := json.Marshal(response{
+		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"errorMessage": "Email is required!",
 		})
 
@@ -36,7 +37,7 @@ func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 	err = database.DB.QueryRow("SELECT email FROM users WHERE email = $1", newUser.Email).Scan(&newUser.Email)
 
 	if err == nil {
-		jsonBody, _ := json.Marshal(response{
+		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"errorMessage": "Email already exists.",
 		})
 
@@ -61,7 +62,7 @@ func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 			errorMessage = "We have already sent code confirmation. Please check your email"
 		}
 
-		jsonBody, _ := json.Marshal(response{
+		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"errorMessage": errorMessage,
 		})
 
@@ -79,7 +80,7 @@ func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 		// clear db
 		database.DB.Exec("DELETE FROM users_confirmation WHERE email = $1", newUser.Email)
 
-		jsonBody, _ := json.Marshal(response{
+		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"errorMessage": err.Error(),
 		})
 
@@ -88,7 +89,7 @@ func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonBody, _ := json.Marshal(response{
+	jsonBody, _ := json.Marshal(types.ResponseMap{
 		"message": fmt.Sprintf("We have sent code to your email: %s", newUser.Email),
 	})
 

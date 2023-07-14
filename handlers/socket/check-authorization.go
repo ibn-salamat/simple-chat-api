@@ -5,6 +5,7 @@ import (
 	"errors"
 	"golang.org/x/net/websocket"
 	"ibn-salamat/simple-chat-api/tools"
+	"ibn-salamat/simple-chat-api/types"
 	"log"
 	"net/http"
 )
@@ -22,7 +23,7 @@ func CheckAuthorization(ws *websocket.Conn) error {
 	resultErr = tools.CheckToken(token.Value)
 	
 	if resultErr != nil {
-		jsonBody, _ := json.Marshal(response{
+		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"errorMessage": resultErr.Error(),
 		})
 

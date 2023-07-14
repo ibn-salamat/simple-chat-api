@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"ibn-salamat/simple-chat-api/database"
+	"ibn-salamat/simple-chat-api/types"
 	"log"
 	"net/http"
 	"strings"
@@ -29,7 +30,7 @@ func SetPasswordHandler(w http.ResponseWriter, r *http.Request) {
 	data.Password = strings.Trim(data.Password, " ")
 
 	if err != nil || data.Email == "" || data.Password == "" {
-		jsonBody, _ := json.Marshal(response{
+		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"errorMessage": "Incorrect json. Required fields: email, password.",
 		})
 
@@ -42,7 +43,7 @@ func SetPasswordHandler(w http.ResponseWriter, r *http.Request) {
 	err = database.DB.QueryRow(`SELECT email FROM users WHERE email = $1`, data.Email).Scan(&data.Email)
 
 	if err == nil {
-		jsonBody, _ := json.Marshal(response{
+		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"errorMessage": "Password is already set",
 		})
 
@@ -52,7 +53,7 @@ func SetPasswordHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil && err != sql.ErrNoRows {
-		jsonBody, _ := json.Marshal(response{
+		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"errorMessage": err.Error(),
 		})
 
@@ -75,7 +76,7 @@ func SetPasswordHandler(w http.ResponseWriter, r *http.Request) {
 	).Scan(&confirmed)
 
 	if err != nil && err != sql.ErrNoRows {
-		jsonBody, _ := json.Marshal(response{
+		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"errorMessage": err.Error(),
 		})
 
@@ -85,7 +86,7 @@ func SetPasswordHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err == sql.ErrNoRows {
-		jsonBody, _ := json.Marshal(response{
+		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"errorMessage": "Email is not confirmed. Please confirm your email",
 		})
 
@@ -97,7 +98,7 @@ func SetPasswordHandler(w http.ResponseWriter, r *http.Request) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(data.Password), 10)
 
 	if err != nil {
-		jsonBody, _ := json.Marshal(response{
+		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"errorMessage": err.Error(),
 		})
 
@@ -114,7 +115,7 @@ func SetPasswordHandler(w http.ResponseWriter, r *http.Request) {
 	`, data.Email, data.Password)
 
 	if err != nil {
-		jsonBody, _ := json.Marshal(response{
+		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"errorMessage": err.Error(),
 		})
 
@@ -123,7 +124,7 @@ func SetPasswordHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jsonBody, _ := json.Marshal(response{
+	jsonBody, _ := json.Marshal(types.ResponseMap{
 		"message": fmt.Sprintf("Password successfully has been created for %s", data.Email),
 	})
 

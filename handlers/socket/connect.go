@@ -8,8 +8,6 @@ import (
 	"time"
 )
 
-type response map[string]string
-
 func SocketHandler(ws *websocket.Conn) {
 	authorizationError := CheckAuthorization(ws)
 

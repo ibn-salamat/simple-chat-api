@@ -53,6 +53,7 @@ func main() {
 	http.Handle("/api/auth/sign-up/check-confirm-code", http.HandlerFunc(auth.CheckConfirmCodeHandler))
 	http.Handle("/api/auth/sign-up/set-password", http.HandlerFunc(auth.SetPasswordHandler))
 	http.Handle("/api/auth/sign-in", http.HandlerFunc(auth.SignInHandler))
+	http.Handle("/", http.HandlerFunc(auth.SignInHandler))
 
 	fmt.Printf("Server started on PORT %s \n", config.EnvData.PORT)
 

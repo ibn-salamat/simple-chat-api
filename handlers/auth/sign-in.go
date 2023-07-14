@@ -6,6 +6,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"ibn-salamat/simple-chat-api/database"
 	"ibn-salamat/simple-chat-api/tools"
+	"ibn-salamat/simple-chat-api/types"
 	"log"
 	"net/http"
 	"strings"
@@ -29,7 +30,7 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	data.Password = strings.Trim(data.Password, " ")
 
 	if err != nil || data.Email == "" || data.Password == "" {
-		jsonBody, _ := json.Marshal(response{
+		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"errorMessage": "Incorrect json. Required fields: email, password.",
 			})
 
@@ -56,7 +57,7 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 			errorMessage = "User with this email is not found."
 		}
 
-		jsonBody, _ := json.Marshal(response{
+		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"errorMessage": errorMessage,
 			})
 
@@ -69,7 +70,7 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	err = bcrypt.CompareHashAndPassword([]byte(passwordHash), []byte(data.Password))
 
 	if err != nil {
-		jsonBody, _ := json.Marshal(response{
+		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"errorMessage": "Incorrect password",
 			})
 
@@ -83,7 +84,7 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	token, err := tools.GenerateJWT(tools.ACCESS_TOKEN_TYPE, data.Email)
 
 	if err != nil {
-		jsonBody, _ := json.Marshal(response{
+		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"errorMessage": "Something went wrong",
 			})
 
@@ -101,7 +102,7 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	`, token, data.Email)
 
 	if err != nil {
-		jsonBody, _ := json.Marshal(response{
+		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"errorMessage": "Something went wrong",
 			})
 
@@ -114,7 +115,7 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	jsonBody, _ := json.Marshal(response{
+	jsonBody, _ := json.Marshal(types.ResponseMap{
 		"token": token,
 	})
 
