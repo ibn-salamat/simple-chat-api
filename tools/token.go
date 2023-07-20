@@ -2,7 +2,6 @@ package tools
 
 import (
 	"errors"
-	"fmt"
 	"ibn-salamat/simple-chat-api/config"
 	"log"
 	"time"
