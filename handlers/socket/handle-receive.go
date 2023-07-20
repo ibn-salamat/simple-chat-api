@@ -1,7 +1,6 @@
 package socket
 
 import (
-	"fmt"
 	"golang.org/x/net/websocket"
 	"log"
 )
@@ -30,7 +29,6 @@ func HandleReceive(ws *websocket.Conn) {
 			log.Println(err)
 		};
 
-		msg := "Received:  " + reply;
-		fmt.Println(msg)
+		websocket.Message.Send(ws, reply)
 	}
 }
