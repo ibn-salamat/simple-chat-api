@@ -1,14 +1,16 @@
 package socket
 
 import (
+	"encoding/json"
 	"golang.org/x/net/websocket"
+	"ibn-salamat/simple-chat-api/types"
 	"log"
 )
 
 func HandleReceive(ws *websocket.Conn) {
 	for {
 		var reply string
-		authorizationError := CheckAuthorization(ws)
+		_, authorizationError := CheckAuthorization(ws)
 
 		if authorizationError != nil {
 			log.Println("User disconnected")
@@ -29,11 +31,25 @@ func HandleReceive(ws *websocket.Conn) {
 			log.Println(err)
 		};
 
+
 		for _, client := range clients {
-			if &client == &*ws {
+			email, authorizationError := CheckAuthorization(&client)
+
+			if authorizationError != nil {
+				// delete from connections
 				return
 			}
-			websocket.Message.Send(&client, reply)
+
+			if email == currentUserEmail {
+				break
+			}
+
+			jsonBody, _ := json.Marshal(types.ResponseMap{
+				"email": email,
+				"message": reply,
+			})
+
+			websocket.Message.Send(&client, string(jsonBody))
 		}
 	}
 }

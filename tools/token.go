@@ -38,15 +38,15 @@ func GenerateJWT(tokenType string, email string) (string, error) {
 	return tokenString, err
 }
 
-func CheckToken(tokenString string) error {
+func CheckToken(tokenString string) (Claims, error) {
 	var claims Claims
 	_, err := jwt.ParseWithClaims(tokenString, &claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(config.EnvData.ACCESS_TOKEN_SECRET), nil
 	})
 
 	if err != nil {
-		return err
+		return Claims{}, err
 	}
 
-	return nil
+	return claims, nil
 }

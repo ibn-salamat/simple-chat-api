@@ -11,7 +11,7 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-func CheckAuthorization(ws *websocket.Conn) error {
+func CheckAuthorization(ws *websocket.Conn) (string, error) {
 	token, resultErr := ws.Request().Cookie("token")
 
 	// check token exists
@@ -35,10 +35,11 @@ func CheckAuthorization(ws *websocket.Conn) error {
 			log.Println(err)
 		}
 
-		return resultErr
+		return "", resultErr
 	}
 
-	resultErr = tools.CheckToken(token.Value)
+	claims, resultErr := tools.CheckToken(token.Value)
+
 
 	if resultErr != nil {
 		jsonBody, _ := json.Marshal(types.ResponseMap{
@@ -57,5 +58,5 @@ func CheckAuthorization(ws *websocket.Conn) error {
 		}
 	}
 
-	return resultErr
+	return claims.Email, resultErr
 }
