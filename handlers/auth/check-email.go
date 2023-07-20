@@ -100,6 +100,7 @@ func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonBody)
 
+	// add scheduler for delete unvonfirmed email
 	// delete temporary user data
 	go func() {
 		time.Sleep(300 * time.Second)
