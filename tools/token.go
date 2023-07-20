@@ -2,6 +2,7 @@ package tools
 
 import (
 	"errors"
+	"fmt"
 	"ibn-salamat/simple-chat-api/config"
 	"log"
 	"time"
@@ -30,7 +31,7 @@ func GenerateJWT(tokenType string, email string) (string, error) {
 
 	claims := token.Claims.(jwt.MapClaims)
 
-	claims["exp"] = time.Now().Add(15 * time.Second).Unix()
+	claims["exp"] = time.Now().Add(15 * time.Minute).Unix()
 	claims["email"] = email
 
 	tokenString, err := token.SignedString([]byte(secretKey))
