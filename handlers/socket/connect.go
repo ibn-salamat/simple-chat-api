@@ -5,6 +5,8 @@ import (
 	"golang.org/x/net/websocket"
 )
 
+var clients []websocket.Conn
+
 func SocketHandler(ws *websocket.Conn) {
 	authorizationError := CheckAuthorization(ws)
 
@@ -13,6 +15,7 @@ func SocketHandler(ws *websocket.Conn) {
 	} else {
 		log.Println("User connected")
 	}
+
 
 	defer HandleReceive(ws)
 }
