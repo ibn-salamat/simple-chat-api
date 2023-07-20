@@ -6,8 +6,6 @@ import (
 )
 
 func HandleReceive(ws *websocket.Conn) {
-	clients = append(clients, *ws)
-
 	for {
 		var reply string
 		authorizationError := CheckAuthorization(ws)
@@ -32,7 +30,7 @@ func HandleReceive(ws *websocket.Conn) {
 		};
 
 		for _, client := range clients {
-			if &client == ws {
+			if &client == &*ws {
 				return
 			}
 			websocket.Message.Send(&client, reply)

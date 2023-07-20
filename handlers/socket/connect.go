@@ -16,6 +16,6 @@ func SocketHandler(ws *websocket.Conn) {
 		log.Println("User connected")
 	}
 
-
+	clients = append(clients, *ws)
 	defer HandleReceive(ws)
 }
