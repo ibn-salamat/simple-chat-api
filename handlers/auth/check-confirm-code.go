@@ -80,16 +80,6 @@ func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
 
 	if data.Code != confirmationCode {
 		if leftTriesCount > 1 {
-			go func() {
-				_, err = database.DB.Exec(`
-				UPDATE users_confirmation SET left_tries_count = $2 WHERE email = $1
-			`, data.Email, leftTriesCount-1)
-
-				if err != nil {
-					log.Println(err)
-				}
-			}()
-
 			jsonBody, _ := json.Marshal(types.ResponseMap{
 				"errorMessage":     "Incorrect code confirmation",
 				"left_tries_count": leftTriesCount - 1,
@@ -97,19 +87,16 @@ func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
 
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(jsonBody)
+
+			_, err = database.DB.Exec(`
+				UPDATE users_confirmation SET left_tries_count = $2 WHERE email = $1
+			`, data.Email, leftTriesCount-1)
+
+			if err != nil {
+				log.Println(err)
+			}
 			return
 		} else if leftTriesCount == 1 {
-			go func() {
-				_, err = database.DB.Exec(`
-				DELETE FROM users_confirmation
-				WHERE email = $1 
-			`, data.Email)
-
-				if err != nil {
-					log.Println(err)
-				}
-			}()
-
 			jsonBody, _ := json.Marshal(types.ResponseMap{
 				"errorMessage":     "Try with new code.",
 				"left_tries_count": leftTriesCount - 1,
@@ -117,28 +104,36 @@ func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
 
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write(jsonBody)
+
+			_, err = database.DB.Exec(`
+				DELETE FROM users_confirmation
+				WHERE email = $1
+			`, data.Email)
+
+			if err != nil {
+				log.Println(err)
+			}
+
 			return
 		}
 
 	}
 
 	if data.Code == confirmationCode {
-		go func() {
-			_, err = database.DB.Exec(`
-			UPDATE users_confirmation confirmed SET confirmed = TRUE WHERE email = $1
-		`, data.Email)
-
-			if err != nil {
-				log.Println(err)
-			}
-		}()
-
 		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"message": "Success",
 		})
 
 		w.WriteHeader(http.StatusOK)
 		w.Write(jsonBody)
+
+		_, err = database.DB.Exec(`
+		UPDATE users_confirmation confirmed SET confirmed = TRUE WHERE email = $1
+		`, data.Email)
+
+		if err != nil {
+			log.Println(err)
+		}
 		return
 	}
 

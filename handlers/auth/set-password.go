@@ -135,14 +135,12 @@ func SetPasswordHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonBody)
 
-	go func() {
-		_, err = database.DB.Exec(`
+	_, err = database.DB.Exec(`
 		DELETE FROM users_confirmation
 		WHERE email = $1 
 	`, data.Email)
 
-		if err != nil {
-			log.Println(err)
-		}
-	}()
+	if err != nil {
+		log.Println(err)
+	}
 }
