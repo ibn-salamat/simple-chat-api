@@ -36,6 +36,8 @@ func init() {
 	config.EnvData.PGPORT = env["PGPORT"]
 	config.EnvData.PGUSER = env["PGUSER"]
 
+	config.EnvData.PORT = env["PORT"]
+
 	if config.EnvData.PORT == "" {
 		config.EnvData.PORT = "3000"
 	}

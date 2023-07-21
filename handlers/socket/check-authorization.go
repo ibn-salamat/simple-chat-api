@@ -6,20 +6,20 @@ import (
 	"ibn-salamat/simple-chat-api/tools"
 	"ibn-salamat/simple-chat-api/types"
 	"log"
-	"net/http"
 
 	"golang.org/x/net/websocket"
 )
 
 func CheckAuthorization(ws *websocket.Conn) (string, error) {
-	token, resultErr := ws.Request().Cookie("token")
+	token := ws.Request().URL.Query().Get("token")
+	var resultErr error
+
+	if token == "" {
+		resultErr = errors.New("token is not exist in params")
+	}
 
 	// check token exists
 	if resultErr != nil {
-		if resultErr == http.ErrNoCookie {
-			resultErr = errors.New("token is not exist in cookies")
-		}
-
 		jsonBody, _ := json.Marshal(types.ResponseMap{
 			"errorMessage": resultErr.Error(),
 		})
@@ -38,8 +38,7 @@ func CheckAuthorization(ws *websocket.Conn) (string, error) {
 		return "", resultErr
 	}
 
-	claims, resultErr := tools.CheckToken(token.Value)
-
+	claims, resultErr := tools.CheckToken(token)
 
 	if resultErr != nil {
 		jsonBody, _ := json.Marshal(types.ResponseMap{
