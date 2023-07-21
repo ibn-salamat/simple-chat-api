@@ -4,23 +4,20 @@ import (
 	"encoding/json"
 	"ibn-salamat/simple-chat-api/types"
 	"log"
+
 	"golang.org/x/net/websocket"
 )
 
 var clients []websocket.Conn
 
-var currentUserEmail string
-
 func SocketHandler(ws *websocket.Conn) {
-	email, authorizationError := CheckAuthorization(ws)
+	currentUserEmail, authorizationError := CheckAuthorization(ws)
 
 	if authorizationError != nil {
 		return
 	} else {
 		log.Println("User connected")
 	}
-
-	currentUserEmail = email
 
 	clients = append(clients, *ws)
 
@@ -32,9 +29,9 @@ func SocketHandler(ws *websocket.Conn) {
 			return
 		}
 
-		if email != currentUserEmail {
+		if currentUserEmail != email {
 			jsonBody, _ := json.Marshal(types.ResponseMap{
-				"email": email,
+				"email":   email,
 				"message": "connected",
 			})
 
