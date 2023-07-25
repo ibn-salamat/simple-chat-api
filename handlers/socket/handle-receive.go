@@ -15,6 +15,12 @@ func HandleReceive(ws *websocket.Conn) {
 		currentUserEmail, authorizationError := CheckAuthorization(ws)
 
 		if authorizationError != nil {
+			for index, client := range clients {
+				if client == ws {
+					clients = append(clients[:index], clients[index+1:]...)
+				}
+			}
+
 			log.Println("User disconnected")
 			return
 		}
@@ -26,6 +32,12 @@ func HandleReceive(ws *websocket.Conn) {
 					log.Println(err)
 				}
 
+				for index, client := range clients {
+					if client == ws {
+						clients = append(clients[:index], clients[index+1:]...)
+					}
+				}
+
 				log.Println("User disconnected")
 				break
 			}
@@ -34,7 +46,7 @@ func HandleReceive(ws *websocket.Conn) {
 		}
 
 		for index, client := range clients {
-			email, authorizationError := CheckAuthorization(&client)
+			email, authorizationError := CheckAuthorization(client)
 
 			if authorizationError != nil {
 				clients = append(clients[:index], clients[index+1:]...)
@@ -48,7 +60,7 @@ func HandleReceive(ws *websocket.Conn) {
 					"date":    time.Now().Format(time.RFC3339),
 				})
 
-				websocket.Message.Send(&client, string(jsonBody))
+				websocket.Message.Send(client, string(jsonBody))
 			}
 		}
 	}

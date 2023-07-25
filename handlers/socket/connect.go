@@ -9,7 +9,7 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-var clients []websocket.Conn
+var clients []*websocket.Conn
 
 func SocketHandler(ws *websocket.Conn) {
 	currentUserEmail, authorizationError := CheckAuthorization(ws)
@@ -20,10 +20,26 @@ func SocketHandler(ws *websocket.Conn) {
 		log.Println("User connected")
 	}
 
-	clients = append(clients, *ws)
+	for _, client := range clients {
+		user1 := client.LocalAddr()
+		user2 := ws.LocalAddr()
+
+		if user1.String() == user2.String() {
+			return
+		}
+
+		email, authorizationError := CheckAuthorization(client)
+
+		if authorizationError != nil || email == currentUserEmail {
+			return
+		}
+
+	}
+
+	clients = append(clients, ws)
 
 	for index, client := range clients {
-		email, authorizationError := CheckAuthorization(&client)
+		email, authorizationError := CheckAuthorization(client)
 
 		if authorizationError != nil {
 			clients = append(clients[:index], clients[index+1:]...)
@@ -37,7 +53,7 @@ func SocketHandler(ws *websocket.Conn) {
 				"date":    time.Now().Format(time.RFC3339),
 			})
 
-			websocket.Message.Send(&client, string(jsonBody))
+			websocket.Message.Send(client, string(jsonBody))
 		}
 	}
 
