@@ -22,11 +22,11 @@ func SocketHandler(ws *websocket.Conn) {
 
 	clients = append(clients, *ws)
 
-	for _, client := range clients {
+	for index, client := range clients {
 		email, authorizationError := CheckAuthorization(&client)
 
 		if authorizationError != nil {
-			// delete from connections
+			clients = append(clients[:index], clients[index+1:]...)
 			return
 		}
 
