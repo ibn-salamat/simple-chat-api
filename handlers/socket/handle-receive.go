@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"ibn-salamat/simple-chat-api/types"
 	"log"
+	"time"
 
 	"golang.org/x/net/websocket"
 )
@@ -44,6 +45,7 @@ func HandleReceive(ws *websocket.Conn) {
 				jsonBody, _ := json.Marshal(types.ResponseMap{
 					"email":   email,
 					"message": reply,
+					"date":    time.Now().Format(time.RFC3339),
 				})
 
 				websocket.Message.Send(&client, string(jsonBody))
