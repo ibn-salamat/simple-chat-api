@@ -14,8 +14,6 @@ import (
 	"github.com/joho/godotenv"
 	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/lib/pq"
-
-	"golang.org/x/net/websocket"
 )
 
 func init() {
@@ -47,12 +45,7 @@ func main() {
 	database.OpenDB()
 	defer database.DB.Close()
 
-	http.HandleFunc("/ws",
-		func(w http.ResponseWriter, r *http.Request) {
-			s := websocket.Server{Handler: websocket.Handler(socket.SocketHandler)}
-
-			s.ServeHTTP(w, r)
-		})
+	http.Handle("/ws", http.HandlerFunc(socket.SocketHandler))
 
 	http.Handle("/api/auth/sign-up/check-email", middlewares.SetBasicHeaders(http.HandlerFunc(auth.CheckEmailHandler)))
 	http.Handle("/api/auth/sign-up/check-confirm-code", middlewares.SetBasicHeaders(http.HandlerFunc(auth.CheckConfirmCodeHandler)))

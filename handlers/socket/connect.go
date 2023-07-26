@@ -3,59 +3,77 @@ package socket
 import (
 	"encoding/json"
 	"ibn-salamat/simple-chat-api/types"
-	"log"
+	"net/http"
 	"time"
 
-	"golang.org/x/net/websocket"
+	"github.com/gorilla/websocket"
 )
 
-var clients []*websocket.Conn
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
 
-func SocketHandler(ws *websocket.Conn) {
-	currentUserEmail, authorizationError := CheckAuthorization(ws)
+var clients = make(map[*websocket.Conn]string)
 
-	if authorizationError != nil {
+func SocketHandler(w http.ResponseWriter, r *http.Request) {
+	connection, _ := upgrader.Upgrade(w, r, nil)
+	defer connection.Close()
+
+	claims, err := CheckAuthorization(r)
+
+	if err != nil {
+		jsonBody, _ := json.Marshal(types.ResponseMap{
+			"errorMessage": err.Error(),
+		})
+
+		connection.WriteMessage(websocket.TextMessage, jsonBody)
 		return
-	} else {
-		log.Println("User connected")
 	}
 
-	for _, client := range clients {
-		user1 := client.LocalAddr()
-		user2 := ws.LocalAddr()
+	clients[connection] = claims.Email
+	defer delete(clients, connection)
 
-		if user1.String() == user2.String() {
-			return
+	// say hello to all
+	jsonBody, _ := json.Marshal(types.ResponseMap{
+		"email":   claims.Email,
+		"message": "Connected",
+		"date":    time.Now().Format(time.RFC3339),
+	})
+
+	go writeMessage(jsonBody, connection)
+
+	// read
+	for {
+		mt, message, err := connection.ReadMessage()
+
+		if err != nil || mt == websocket.CloseMessage {
+			break
 		}
 
-		email, authorizationError := CheckAuthorization(client)
-
-		if authorizationError != nil || email == currentUserEmail {
-			return
-		}
-
-	}
-
-	clients = append(clients, ws)
-
-	for index, client := range clients {
-		email, authorizationError := CheckAuthorization(client)
-
-		if authorizationError != nil {
-			clients = append(clients[:index], clients[index+1:]...)
-			return
-		}
-
-		if currentUserEmail != email {
+		if time.Now().Unix() > claims.ExpiresAt {
 			jsonBody, _ := json.Marshal(types.ResponseMap{
-				"email":   email,
-				"message": "connected",
-				"date":    time.Now().Format(time.RFC3339),
+				"errorMessage": "token is expired",
 			})
 
-			websocket.Message.Send(client, string(jsonBody))
+			connection.WriteMessage(websocket.TextMessage, jsonBody)
+			return
 		}
+
+		jsonBody, _ := json.Marshal(types.ResponseMap{
+			"email":   claims.Email,
+			"message": string(message),
+			"date":    time.Now().Format(time.RFC3339),
+		})
+
+		go writeMessage(jsonBody, connection)
 	}
 
-	defer HandleReceive(ws)
+}
+
+func writeMessage(message []byte, currentConn *websocket.Conn) {
+	for conn := range clients {
+		conn.WriteMessage(websocket.TextMessage, message)
+	}
 }
