@@ -19,61 +19,52 @@ var clients = make(map[*websocket.Conn]string)
 
 func SocketHandler(w http.ResponseWriter, r *http.Request) {
 	connection, _ := upgrader.Upgrade(w, r, nil)
-	defer connection.Close()
-
 	claims, err := CheckAuthorization(r)
+
+	defer closeConnection(connection, claims.Email)
 
 	if err != nil {
 		jsonBody, _ := json.Marshal(types.ResponseMap{
-			"errorMessage": err.Error(),
+			"type":    "error",
+			"message": err.Error(),
 		})
 
 		connection.WriteMessage(websocket.TextMessage, jsonBody)
 		return
 	}
 
-	clients[connection] = claims.Email
-	defer delete(clients, connection)
-
 	// say hello to all
-	jsonBody, _ := json.Marshal(types.ResponseMap{
-		"email":   claims.Email,
-		"message": "Connected",
-		"date":    time.Now().Format(time.RFC3339),
-	})
-
-	go writeMessage(jsonBody, connection)
+	writeMessage(claims.Email, "connection", "Connected")
+	clients[connection] = claims.Email
 
 	// read
 	for {
 		mt, message, err := connection.ReadMessage()
-
 		if err != nil || mt == websocket.CloseMessage {
 			break
 		}
 
 		if time.Now().Unix() > claims.ExpiresAt {
 			jsonBody, _ := json.Marshal(types.ResponseMap{
-				"errorMessage": "token is expired",
+				"type":    "error",
+				"message": "token is expired",
 			})
 
 			connection.WriteMessage(websocket.TextMessage, jsonBody)
 			return
 		}
 
-		jsonBody, _ := json.Marshal(types.ResponseMap{
-			"email":   claims.Email,
-			"message": string(message),
-			"date":    time.Now().Format(time.RFC3339),
-		})
-
-		go writeMessage(jsonBody, connection)
+		writeMessage(claims.Email, "message", string(message))
 	}
-
 }
 
-func writeMessage(message []byte, currentConn *websocket.Conn) {
-	for conn := range clients {
-		conn.WriteMessage(websocket.TextMessage, message)
+func closeConnection(connection *websocket.Conn, email string) {
+	connection.Close()
+	delete(clients, connection)
+
+	if email == "" {
+		return
 	}
+
+	writeMessage(email, "connection", "Disconnected")
 }
