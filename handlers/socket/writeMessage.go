@@ -8,11 +8,11 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func writeMessage(email string, messageType string, messageContent string) {
+func writeMessage(email string, messageType string, content string) {
 	jsonBody, _ := json.Marshal(types.ResponseMap{
 		"type":    messageType,
 		"email":   email,
-		"message": messageContent,
+		"content": content,
 		"date":    time.Now().Format(time.RFC3339),
 	})
 

@@ -20,13 +20,14 @@ var clients = make(map[*websocket.Conn]string)
 func SocketHandler(w http.ResponseWriter, r *http.Request) {
 	connection, _ := upgrader.Upgrade(w, r, nil)
 	claims, err := CheckAuthorization(r)
+	tickerDone := make(chan bool)
 
-	defer closeConnection(connection, claims.Email)
+	defer closeConnection(connection, claims.Email, &tickerDone)
 
 	if err != nil {
 		jsonBody, _ := json.Marshal(types.ResponseMap{
-			"type":    "error",
-			"message": err.Error(),
+			"type":    "errorMessage",
+			"content": err.Error(),
 		})
 
 		connection.WriteMessage(websocket.TextMessage, jsonBody)
@@ -37,6 +38,8 @@ func SocketHandler(w http.ResponseWriter, r *http.Request) {
 	clients[connection] = claims.Email
 	writeMessage(claims.Email, "connection", "Connected")
 
+	go sendOnlineUsers(&tickerDone)
+
 	// read
 	for {
 		mt, message, err := connection.ReadMessage()
@@ -46,8 +49,8 @@ func SocketHandler(w http.ResponseWriter, r *http.Request) {
 
 		if time.Now().Unix() > claims.ExpiresAt {
 			jsonBody, _ := json.Marshal(types.ResponseMap{
-				"type":    "error",
-				"message": "token is expired",
+				"type":    "errorMessage",
+				"content": "token is expired",
 			})
 
 			connection.WriteMessage(websocket.TextMessage, jsonBody)
@@ -58,8 +61,9 @@ func SocketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func closeConnection(connection *websocket.Conn, email string) {
+func closeConnection(connection *websocket.Conn, email string, tickerDone *chan bool) {
 	connection.Close()
+	*tickerDone <- true
 	delete(clients, connection)
 
 	if email == "" {
