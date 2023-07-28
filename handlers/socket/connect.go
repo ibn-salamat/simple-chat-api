@@ -36,7 +36,7 @@ func SocketHandler(w http.ResponseWriter, r *http.Request) {
 
 	// say hello to all
 	clients[connection] = claims.Email
-	writeMessage(claims.Email, "connection", "Connected")
+	sendToClients(claims.Email, "connection", "Connected")
 
 	go sendOnlineUsers(&tickerDone)
 
@@ -57,18 +57,6 @@ func SocketHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		writeMessage(claims.Email, "message", string(message))
+		sendToClients(claims.Email, "message", string(message))
 	}
-}
-
-func closeConnection(connection *websocket.Conn, email string, tickerDone *chan bool) {
-	connection.Close()
-	*tickerDone <- true
-	delete(clients, connection)
-
-	if email == "" {
-		return
-	}
-
-	writeMessage(email, "connection", "Disconnected")
 }

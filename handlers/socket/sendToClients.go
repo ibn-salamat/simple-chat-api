@@ -8,7 +8,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func writeMessage(email string, messageType string, content string) {
+func sendToClients(email string, messageType string, content string) {
 	jsonBody, _ := json.Marshal(types.ResponseMap{
 		"type":    messageType,
 		"email":   email,
