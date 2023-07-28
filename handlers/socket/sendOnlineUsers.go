@@ -25,7 +25,6 @@ func sendOnlineUsers(done *chan bool) {
 			jsonBody, _ := json.Marshal(types.ResponseMap{
 				"type":    "onlineUsers",
 				"content": userEmails,
-				"date":    time.Now().Format(time.RFC3339),
 			})
 
 			for conn := range clients {
