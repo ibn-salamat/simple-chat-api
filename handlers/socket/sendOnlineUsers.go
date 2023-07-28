@@ -9,7 +9,7 @@ import (
 )
 
 func sendOnlineUsers(done *chan bool) {
-	ticker := time.NewTicker(time.Second * 3)
+	ticker := time.NewTicker(time.Second * 1)
 
 	for {
 		select {
