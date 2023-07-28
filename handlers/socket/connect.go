@@ -34,8 +34,8 @@ func SocketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// say hello to all
-	writeMessage(claims.Email, "connection", "Connected")
 	clients[connection] = claims.Email
+	writeMessage(claims.Email, "connection", "Connected")
 
 	// read
 	for {
