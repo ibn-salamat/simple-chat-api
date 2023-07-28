@@ -18,6 +18,12 @@ func sendToClients(email string, messageType string, content string) {
 		"date":    time.Now().UTC().Format(time.RFC3339),
 	})
 
+	// id
+	// email
+	// message_type
+	// message_content
+	// created_at
+
 	for conn := range clients {
 		conn.WriteMessage(websocket.TextMessage, jsonBody)
 	}
