@@ -12,9 +12,14 @@ func CheckAuthorization(r *http.Request) (tools.Claims, error) {
 	var err error
 
 	if token == "" {
-		err = errors.New("token is not exist in params")
+		tokenCookie, err := r.Cookie("token")
 
-		return tools.Claims{}, err
+		if err != nil {
+			err = errors.New("token does not exist neither in params nor in cookies")
+			return tools.Claims{}, err
+		}
+
+		token = tokenCookie.Value
 	}
 
 	claims, err := tools.CheckToken(token)
