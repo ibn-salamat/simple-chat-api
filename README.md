@@ -1,6 +1,6 @@
 # Chat
 
-Simple chat application powered by go, postgres, gorilla websocket.
+Simple chat application powered by go, postgres, gorilla websocket in order to know how works websocket.
 
 run  <code>go run .</code>                             
 
