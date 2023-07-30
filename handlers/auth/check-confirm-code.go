@@ -27,7 +27,7 @@ func CheckConfirmCodeHandler(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&data)
 
-	data.Email = strings.Trim(data.Email, " ")
+	data.Email = strings.ToLower(strings.Trim(data.Email, " "))
 	data.Code = strings.Trim(data.Code, " ")
 
 	if err != nil || data.Email == "" || data.Code == "" {
