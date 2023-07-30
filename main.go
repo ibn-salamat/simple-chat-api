@@ -5,6 +5,7 @@ import (
 	"ibn-salamat/simple-chat-api/config"
 	"ibn-salamat/simple-chat-api/database"
 	"ibn-salamat/simple-chat-api/handlers/auth"
+	"ibn-salamat/simple-chat-api/handlers/chats"
 	notFound "ibn-salamat/simple-chat-api/handlers/not-found"
 	"ibn-salamat/simple-chat-api/handlers/socket"
 	"ibn-salamat/simple-chat-api/middlewares"
@@ -45,12 +46,17 @@ func main() {
 	database.OpenDB()
 	defer database.DB.Close()
 
+	// socket
 	http.Handle("/ws", http.HandlerFunc(socket.SocketHandler))
-
+	// sign-up
 	http.Handle("/api/auth/sign-up/check-email", middlewares.SetBasicHeaders(http.HandlerFunc(auth.CheckEmailHandler)))
 	http.Handle("/api/auth/sign-up/check-confirm-code", middlewares.SetBasicHeaders(http.HandlerFunc(auth.CheckConfirmCodeHandler)))
 	http.Handle("/api/auth/sign-up/set-password", middlewares.SetBasicHeaders(http.HandlerFunc(auth.SetPasswordHandler)))
+	// sign-in
 	http.Handle("/api/auth/sign-in", middlewares.SetBasicHeaders(http.HandlerFunc(auth.SignInHandler)))
+	// chats
+	http.Handle("/api/chats/general/messages", middlewares.SetBasicHeaders(http.HandlerFunc(chats.GeneralChatMessages)))
+	// not found
 	http.Handle("/", middlewares.SetBasicHeaders(http.HandlerFunc(notFound.NotFound)))
 
 	fmt.Printf("Server started on PORT %s \n", config.EnvData.PORT)
