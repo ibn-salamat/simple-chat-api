@@ -124,6 +124,7 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:  "token",
 		Value: token,
+		Path:  "/",
 	})
 
 	w.WriteHeader(http.StatusOK)
