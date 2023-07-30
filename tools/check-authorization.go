@@ -1,12 +1,12 @@
-package socket
+package tools
 
 import (
 	"errors"
-	"ibn-salamat/simple-chat-api/tools"
+	"fmt"
 	"net/http"
 )
 
-func CheckAuthorization(r *http.Request) (tools.Claims, error) {
+func CheckAuthorization(r *http.Request) (Claims, error) {
 	token := r.URL.Query().Get("token")
 
 	var err error
@@ -15,14 +15,15 @@ func CheckAuthorization(r *http.Request) (tools.Claims, error) {
 		tokenCookie, err := r.Cookie("token")
 
 		if err != nil {
+			fmt.Println(err)
 			err = errors.New("token does not exist neither in params nor in cookies")
-			return tools.Claims{}, err
+			return Claims{}, err
 		}
 
 		token = tokenCookie.Value
 	}
 
-	claims, err := tools.CheckToken(token)
+	claims, err := CheckToken(token)
 
 	return claims, err
 }

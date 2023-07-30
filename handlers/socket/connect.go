@@ -2,6 +2,7 @@ package socket
 
 import (
 	"encoding/json"
+	"ibn-salamat/simple-chat-api/tools"
 	"ibn-salamat/simple-chat-api/types"
 	"net/http"
 	"time"
@@ -19,7 +20,7 @@ var clients = make(map[*websocket.Conn]string)
 
 func SocketHandler(w http.ResponseWriter, r *http.Request) {
 	connection, _ := upgrader.Upgrade(w, r, nil)
-	claims, err := CheckAuthorization(r)
+	claims, err := tools.CheckAuthorization(r)
 	tickerDone := make(chan bool)
 
 	defer closeConnection(connection, claims.Email, &tickerDone)
