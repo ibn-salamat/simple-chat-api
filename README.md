@@ -1,5 +1,7 @@
 # Chat
 
+Simple chat application powered by go, postgres, gorilla websocket.
+
 run  <code>go run .</code>                             
 
 railway deploy start command: <code>
