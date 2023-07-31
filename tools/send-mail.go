@@ -8,7 +8,7 @@ import (
 
 func SendMail(to string, subject string, content string) error {
 	message := []byte(fmt.Sprintf("Subject: %s \r\n\r\n\n %s", subject, content))
-	addr := fmt.Sprintf("%s:%s", config.EnvData.SMTP_ADDR, ":587")
+	addr := fmt.Sprintf("%s:%s", config.EnvData.SMTP_ADDR, "587")
 	auth := smtp.PlainAuth(
 		"",
 		config.EnvData.SMTP_LOGIN,
