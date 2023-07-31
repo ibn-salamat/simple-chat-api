@@ -27,7 +27,9 @@ func init() {
 	config.EnvData.ACCESS_TOKEN_SECRET = env["ACCESS_TOKEN_SECRET"]
 	config.EnvData.REFRESH_TOKEN_SECRET = env["REFRESH_TOKEN_SECRET"]
 
-	config.EnvData.GOOGLE_GMAIL_KEY = env["GOOGLE_GMAIL_KEY"]
+	config.EnvData.SMTP_KEY = env["SMTP_KEY"]
+	config.EnvData.SMTP_ADDR = env["SMTP_ADDR"]
+	config.EnvData.SMTP_LOGIN = env["SMTP_LOGIN"]
 
 	config.EnvData.PGDATABASE = env["PGDATABASE"]
 	config.EnvData.PGHOST = env["PGHOST"]

@@ -8,14 +8,14 @@ import (
 
 func SendMail(to string, subject string, content string) error {
 	message := []byte(fmt.Sprintf("Subject: %s \r\n\r\n\n %s", subject, content))
-	addr := "smtp.gmail.com:587"
+	addr := fmt.Sprintf("%s:%s", config.EnvData.SMTP_ADDR, ":587")
 	auth := smtp.PlainAuth(
 		"",
-		"n.salamatoff@gmail.com",
-		config.EnvData.GOOGLE_GMAIL_KEY,
-		"smtp.gmail.com",
+		config.EnvData.SMTP_LOGIN,
+		config.EnvData.SMTP_KEY,
+		config.EnvData.SMTP_ADDR,
 	)
-	from := "admin@simple-chat.com"
+	from := config.EnvData.SMTP_LOGIN
 
 	return smtp.SendMail(
 		addr,
