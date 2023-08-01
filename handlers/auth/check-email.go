@@ -25,7 +25,7 @@ func CheckEmailHandler(w http.ResponseWriter, r *http.Request) {
 
 	var newUser NewUser
 	decoder := json.NewDecoder(r.Body)
-	newUser.Email = strings.Trim(newUser.Email, " ")
+	newUser.Email = strings.ToLower(strings.Trim(newUser.Email, " "))
 
 	err := decoder.Decode(&newUser)
 	if err != nil || newUser.Email == "" {

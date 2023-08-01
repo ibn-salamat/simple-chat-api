@@ -1,6 +1,6 @@
 CREATE TABLE users (
     email character varying(30) NOT NULL UNIQUE,
-    password text NOT NULL
+    password text NOT NULL,
     token text UNIQUE
 );
 

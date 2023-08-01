@@ -30,7 +30,7 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&data)
 
-	data.Email = strings.Trim(data.Email, " ")
+	data.Email = strings.ToLower(strings.Trim(data.Email, " "))
 	data.Password = strings.Trim(data.Password, " ")
 
 	if err != nil || data.Email == "" || data.Password == "" {
@@ -124,6 +124,7 @@ func SignInHandler(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:  "token",
 		Value: token,
+		Path:  "/",
 	})
 
 	w.WriteHeader(http.StatusOK)
