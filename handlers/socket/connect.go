@@ -5,10 +5,16 @@ import (
 	"ibn-salamat/simple-chat-api/tools"
 	"ibn-salamat/simple-chat-api/types"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
 )
+
+type Connection struct {
+	Socket *websocket.Conn
+	mu     sync.Mutex
+}
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
@@ -36,7 +42,12 @@ func SocketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// say hello to all
-	clients[connection] = claims.Email
+	func() {
+		mutex := new(sync.Mutex)
+		mutex.Lock()
+		defer mutex.Unlock()
+		clients[connection] = claims.Email
+	}()
 	sendToClients(claims.Email, "connection", "Connected")
 
 	go sendOnlineUsers(&tickerDone)

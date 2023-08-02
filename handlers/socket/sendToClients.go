@@ -5,6 +5,7 @@ import (
 	"ibn-salamat/simple-chat-api/database"
 	"ibn-salamat/simple-chat-api/types"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -32,6 +33,9 @@ func sendToClients(email string, messageType string, content string) {
 	}
 
 	for conn := range clients {
+		mutex := new(sync.Mutex)
+		mutex.Lock()
+		defer mutex.Unlock()
 		conn.WriteMessage(websocket.TextMessage, jsonBody)
 	}
 }
