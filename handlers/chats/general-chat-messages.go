@@ -93,7 +93,7 @@ func GeneralChatMessages(w http.ResponseWriter, r *http.Request) {
 			"errorMessage": "lastMessageId should be number",
 		})
 
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write(jsonBody)
 		return
 	}
