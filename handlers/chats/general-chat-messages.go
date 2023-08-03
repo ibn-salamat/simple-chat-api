@@ -93,7 +93,7 @@ func GeneralChatMessages(w http.ResponseWriter, r *http.Request) {
 	message_content,
 	created_at
 	FROM general_chat_messages
-	WHERE $1::timestamptz > created_at::timestamptz
+	WHERE $1::timestamptz < created_at::timestamptz
 	ORDER BY created_at DESC
 	LIMIT 10
 	`, lastMessageDate)
