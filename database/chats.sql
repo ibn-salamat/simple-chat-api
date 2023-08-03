@@ -1,6 +1,6 @@
 
 CREATE TABLE general_chat_messages (
-    id UUID NOT NULL,
+    id SERIAL PRIMARY KEY,
     email character varying(30) NOT NULL,
     message_type character varying(30) NOT NULL,
     message_content text,
