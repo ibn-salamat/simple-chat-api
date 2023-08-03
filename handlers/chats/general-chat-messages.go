@@ -9,6 +9,7 @@ import (
 	"ibn-salamat/simple-chat-api/types"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 type Message struct {
@@ -40,9 +41,9 @@ func GeneralChatMessages(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	lastMessageDate := r.URL.Query().Get("lastMessageDate")
+	lastMessageId := r.URL.Query().Get("lastMessageId")
 
-	if lastMessageDate == "" {
+	if lastMessageId == "" {
 		rows, err := database.DB.Query(`
 	SELECT
 	id,
@@ -85,6 +86,18 @@ func GeneralChatMessages(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	id, err := strconv.ParseUint(lastMessageId, 10, 64)
+
+	if err != nil {
+		jsonBody, _ := json.Marshal(types.ResponseMap{
+			"errorMessage": "lastMessageId should be number",
+		})
+
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(jsonBody)
+		return
+	}
+
 	rows, err := database.DB.Query(`
 	SELECT
 	id,
@@ -93,10 +106,10 @@ func GeneralChatMessages(w http.ResponseWriter, r *http.Request) {
 	message_content,
 	created_at
 	FROM general_chat_messages
-	WHERE $1::timestamptz < created_at::timestamptz
+	WHERE $1 > id
 	ORDER BY created_at DESC
 	LIMIT 10
-	`, lastMessageDate)
+	`, id)
 
 	if err != nil {
 		jsonBody, _ := json.Marshal(types.ResponseMap{

@@ -22,7 +22,7 @@ func sendToClients(email string, messageType string, content string) {
 
 	_, err := database.DB.Exec(`
 		INSERT INTO general_chat_messages (email, message_type, message_content, created_at)
-		VALUES ($1, $2, $3, $4, $5)
+		VALUES ($1, $2, $3, $4)
 	`, email, messageType, content, date)
 
 	if err != nil {
