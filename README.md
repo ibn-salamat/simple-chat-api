@@ -2,6 +2,8 @@
 
 Simple chat application powered by go, postgres, gorilla websocket in order to know how works websocket.
 
+Link to the Demo here: https://github.com/yersultan-ibn/simple-chat
+
 run  <code>go run .</code>                             
 
 railway deploy start command: <code>
