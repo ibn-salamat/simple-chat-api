@@ -3,7 +3,7 @@
 Simple chat application powered by go, postgres, gorilla websocket.
 
 
-Link to Demo: https://ibn-salamat.github.io/simple-chat-api/
+Link to Demo: https://simple-chat-v2.vercel.app/
 
 Repo for Frontend: https://github.com/yersultan-ibn/simple-chat
 
