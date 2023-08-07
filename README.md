@@ -1,8 +1,10 @@
 # Chat
 
-Simple chat application powered by go, postgres, gorilla websocket in order to know how works websocket.
+Simple chat application powered by go, postgres, gorilla websocket.
 
-Link to the Demo here: https://github.com/yersultan-ibn/simple-chat
+
+Link to Demo: https://ibn-salamat.github.io/simple-chat-api/
+Repo for Frontend: https://github.com/yersultan-ibn/simple-chat
 
 run  <code>go run .</code>                             
 
