@@ -4,6 +4,7 @@ Simple chat application powered by go, postgres, gorilla websocket.
 
 
 Link to Demo: https://ibn-salamat.github.io/simple-chat-api/
+
 Repo for Frontend: https://github.com/yersultan-ibn/simple-chat
 
 run  <code>go run .</code>                             
